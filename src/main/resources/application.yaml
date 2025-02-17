@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: solr-api-server
+
+solr:
+  host: http://localhost:8983/solr
+  collection: kate
+
+server:
+  port: 8080
