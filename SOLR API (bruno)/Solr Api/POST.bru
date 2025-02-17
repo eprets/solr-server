@@ -1,0 +1,22 @@
+meta {
+  name: POST
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:8080/books
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "id": "9",
+    "title": "Название книги",
+    "author": ["Автор 1", "Автор 2"]
+  }
+  
+  
+  
+}
