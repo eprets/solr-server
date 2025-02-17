@@ -33,18 +33,18 @@ public class BookService {
     }
 
     public List<Book> searchBooks(String keyword) throws Exception {
-        String queryStr = "*:*";  // Запрос для поиска всех документов по умолчанию
+        String queryStr = "*:*";
         if (keyword != null && !keyword.trim().isEmpty() && !"*".equals(keyword)) {
-            queryStr = "title:\"" + keyword + "\" OR author:\"" + keyword + "\"";  // Корректный запрос для Solr
+            queryStr = "title:\"" + keyword + "\" OR author:\"" + keyword + "\"";
         }
-        System.out.println("Query: " + queryStr);  // Логируем запрос для отладки
+        System.out.println("Query: " + queryStr);
 
         SolrQuery query = new SolrQuery(queryStr);
         try {
             QueryResponse response = solrClient.query(collection, query);
             SolrDocumentList documents = response.getResults();
 
-            System.out.println("Number of documents found: " + documents.getNumFound());  // Логируем количество найденных документов
+            System.out.println("Number of documents found: " + documents.getNumFound());
 
             List<Book> books = new ArrayList<>();
             documents.forEach(doc -> books.add(new Book(
@@ -54,7 +54,7 @@ public class BookService {
             )));
             return books;
         } catch (Exception e) {
-            e.printStackTrace();  // Печатаем стек ошибки для отладки
+            e.printStackTrace();
             throw new Exception("Ошибка при выполнении запроса к Solr: " + e.getMessage());
         }
     }

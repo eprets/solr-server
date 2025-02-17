@@ -27,7 +27,7 @@ public class CsvService {
     private List<Book> parseCsv(InputStream inputStream) throws Exception {
         CsvMapper csvMapper = new CsvMapper();
         CsvSchema schema = CsvSchema.emptySchema().withHeader().withColumnSeparator(',');
-        // Используем возможность обработки строк с кавычками и разделителей внутри полей
+
         schema = schema.withQuoteChar('"');
 
         MappingIterator<Book> it = csvMapper.readerFor(Book.class).with(schema).readValues(inputStream);

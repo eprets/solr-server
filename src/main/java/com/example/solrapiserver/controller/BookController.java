@@ -35,7 +35,7 @@ public class BookController {
     public List<Book> searchBooks(@RequestParam(value = "q", defaultValue = "") String q) {
         try {
             if (q.equals("*")) {
-                q = "";  // Если q = "*", интерпретируем как поиск всех книг
+                q = "";
             }
             return bookService.searchBooks(q);
         } catch (Exception e) {
