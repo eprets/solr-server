@@ -13,13 +13,13 @@ import java.util.List;
 @AllArgsConstructor
 public class Book {
 
-    @Field("id")
+//    @Field("id")
     private String id;
 
-    @Field("title")
-    private List<String> title;
+//    @Field("title")
+    private String title;
 
-    @Field("author")
-    @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
-    private List<String> author;
+//    @Field("authors")
+//    @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+    private List<String> authors;
 }

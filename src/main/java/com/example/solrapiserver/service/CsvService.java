@@ -26,9 +26,12 @@ public class CsvService {
 
     private List<Book> parseCsv(InputStream inputStream) throws Exception {
         CsvMapper csvMapper = new CsvMapper();
-        CsvSchema schema = CsvSchema.emptySchema().withHeader().withColumnSeparator(',');
-
-        schema = schema.withQuoteChar('"');
+        CsvSchema schema = CsvSchema
+                .emptySchema()
+                .withHeader()
+                .withColumnSeparator(',')
+                .withQuoteChar('"')
+                .withArrayElementSeparator(",");
 
         MappingIterator<Book> it = csvMapper.readerFor(Book.class).with(schema).readValues(inputStream);
 
@@ -52,10 +55,10 @@ public class CsvService {
             SolrInputDocument doc = new SolrInputDocument();
             doc.addField("id", book.getId());
             doc.addField("title", book.getTitle());
-            doc.addField("author", book.getAuthor());
+            doc.addField("authors", book.getAuthors());
 
             solrClient.add(collection, doc);
         }
-        solrClient.commit(collection);
+        solrClient.commit(collection,true, true);
     }
 }

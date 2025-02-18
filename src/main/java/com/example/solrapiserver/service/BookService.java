@@ -26,7 +26,7 @@ public class BookService {
         SolrInputDocument doc = new SolrInputDocument();
         doc.addField("id", book.getId());
         doc.addField("title", book.getTitle());
-        doc.addField("author", book.getAuthor());
+        doc.addField("authors", book.getAuthors());
 
         solrClient.add(collection, doc);
         solrClient.commit(collection);
@@ -35,7 +35,7 @@ public class BookService {
     public List<Book> searchBooks(String keyword) throws Exception {
         String queryStr = "*:*";
         if (keyword != null && !keyword.trim().isEmpty() && !"*".equals(keyword)) {
-            queryStr = "title:\"" + keyword + "\" OR author:\"" + keyword + "\"";
+            queryStr = "title:\"" + keyword + "\" OR authors:\"" + keyword + "\"";
         }
         System.out.println("Query: " + queryStr);
 
@@ -49,8 +49,8 @@ public class BookService {
             List<Book> books = new ArrayList<>();
             documents.forEach(doc -> books.add(new Book(
                     (String) doc.getFieldValue("id"),
-                    (List<String>) doc.getFieldValue("title"),
-                    (List<String>) doc.getFieldValue("author")
+                    (String) doc.getFieldValue("title"),
+                    (List<String>) doc.getFieldValue("authors")
             )));
             return books;
         } catch (Exception e) {

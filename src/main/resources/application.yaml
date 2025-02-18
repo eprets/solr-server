@@ -4,7 +4,7 @@ spring:
 
 solr:
   host: http://localhost:8983/solr
-  collection: kate
+  collection: kate3
 
 server:
   port: 8080
