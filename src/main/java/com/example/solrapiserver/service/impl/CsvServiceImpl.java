@@ -1,4 +1,4 @@
-package com.example.solrapiserver.service;
+package com.example.solrapiserver.service.impl;
 
 import com.example.solrapiserver.model.Book;
 import com.fasterxml.jackson.databind.MappingIterator;
@@ -17,7 +17,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class CsvService {
+public class CsvServiceImpl {
 
     private final SolrClient solrClient;
 

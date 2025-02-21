@@ -1,27 +1,23 @@
-package com.example.solrapiserver.controller;
+package com.example.solrapiserver.controller.impl;
 
+import com.example.solrapiserver.controller.BookApi;
 import com.example.solrapiserver.model.Book;
 import com.example.solrapiserver.service.BookService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/books")
 @RequiredArgsConstructor
-@Tag(name = "Book API", description = "API для работы с книгами в Solr")
-public class BookController {
+public class BookController implements BookApi {
 
     private final BookService bookService;
 
-    @PostMapping
-    @Operation(summary = "Добавить книгу", description = "Добавляет новую книгу в Solr")
-    public String addBook(@RequestBody Book book) {
+    @Override
+    public String addBook(Book book) {
         try {
             bookService.addBook(book);
             return "Книга добавлена!";
@@ -30,9 +26,8 @@ public class BookController {
         }
     }
 
-    @GetMapping("/search")
-    @Operation(summary = "Поиск книг", description = "Ищет книги по названию или автору")
-    public List<Book> searchBooks(@RequestParam(value = "q", defaultValue = "") String q) {
+    @Override
+    public List<Book> searchBooks(String q) {
         try {
             if (q.equals("*")) {
                 q = "";
@@ -43,9 +38,8 @@ public class BookController {
         }
     }
 
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Удалить книгу", description = "Удаляет книгу из Solr по ID")
-    public String deleteBook(@PathVariable String id) {
+    @Override
+    public String deleteBook(String id) {
         try {
             bookService.deleteBookById(id);
             return "Книга удалена!";
