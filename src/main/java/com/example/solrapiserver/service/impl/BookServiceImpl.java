@@ -52,10 +52,12 @@ public class BookServiceImpl implements BookService {
 
             List<Book> books = new ArrayList<>();
             documents.forEach(doc -> books.add(new Book(
-                    (String) doc.getFieldValue("id"),
-                    (String) doc.getFieldValue("title"),
+                    (String) doc.getFirstValue("id"),
+                    (String) doc.getFirstValue("title"),
                     (List<String>) doc.getFieldValue("authors")
             )));
+
+
             return books;
         } catch (Exception e) {
             e.printStackTrace();
