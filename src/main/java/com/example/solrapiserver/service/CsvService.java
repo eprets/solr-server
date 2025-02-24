@@ -43,22 +43,18 @@ public class CsvService {
     }
 
     public void processCsv(MultipartFile file) throws Exception {
-        System.out.println("Processing CSV file...");
         List<Book> books = parseCsv(file.getInputStream());
-        System.out.println("Parsed " + books.size() + " books.");
         uploadToSolr(books);
     }
 
     private void uploadToSolr(List<Book> books) throws Exception {
         for (Book book : books) {
-            System.out.println("Uploading book: " + book.getTitle());
             SolrInputDocument doc = new SolrInputDocument();
             doc.addField("id", book.getId());
             doc.addField("title", book.getTitle());
             doc.addField("authors", book.getAuthors());
-
             solrClient.add(collection, doc);
         }
-        solrClient.commit(collection,true, true);
+        solrClient.commit(collection, true, true);
     }
 }

@@ -4,7 +4,23 @@ spring:
 
 solr:
   host: http://localhost:8983/solr
-  collection: kate3
+  collection: books_solrj
 
 server:
   port: 8080
+
+#spring:
+#  application:
+#    name: solr-api-server
+#
+#solr:
+#  host: http://localhost:8983/solr
+#  collection: books
+#  fields:
+#    id: "id"
+#    title: "title"
+#    authors: "authors"
+#
+#server:
+#  port: 8080
+
