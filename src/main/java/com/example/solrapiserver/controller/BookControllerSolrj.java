@@ -57,6 +57,7 @@ public class BookControllerSolrj {
     @GetMapping("/fields")
     @Operation(summary = "Получить поля и типы данных", description = "Возвращает доступные поля и их типы данных")
     public Map<String, String> getFields() {
-        return bookService.getFields();
+        return bookService.getFieldsMapping();
+
     }
 }

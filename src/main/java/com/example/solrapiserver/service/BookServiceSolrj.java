@@ -16,21 +16,20 @@ import java.util.*;
 public class BookServiceSolrj {
 
     private final SolrClient solrClient;
+    private final FieldsService fieldsService;
 
     @Value("${solr.collection}")
     private String collection;
 
-    private static final Map<String, String> FIELDS = Map.of(
-            "id", "String",
-            "title", "String",
-            "authors", "String[]"
-    );
-
     public void addBook(Map<String, Object> bookData) throws Exception {
         SolrInputDocument doc = new SolrInputDocument();
+        Map<String, String> fieldsMapping = fieldsService.getFields();
+
         for (Map.Entry<String, Object> entry : bookData.entrySet()) {
-            doc.addField(entry.getKey(), entry.getValue());
+            String solrField = fieldsMapping.getOrDefault(entry.getKey(), entry.getKey());
+            doc.addField(solrField, entry.getValue());
         }
+
         solrClient.add(collection, doc);
         solrClient.commit(collection);
     }
@@ -45,12 +44,19 @@ public class BookServiceSolrj {
         QueryResponse response = solrClient.query(collection, query);
         SolrDocumentList documents = response.getResults();
 
+        Map<String, String> fieldsMapping = fieldsService.getFields();
+        Map<String, String> reverseMapping = new HashMap<>();
+        for (Map.Entry<String, String> entry : fieldsMapping.entrySet()) {
+            reverseMapping.put(entry.getValue(), entry.getKey());
+        }
+
         List<Map<String, Object>> books = new ArrayList<>();
         for (var doc : documents) {
             Map<String, Object> bookData = new HashMap<>();
-            bookData.put("id", doc.getFirstValue("id"));
-            bookData.put("title", doc.getFirstValue("title"));
-            bookData.put("authors", doc.getFieldValue("authors"));
+            for (String solrField : doc.getFieldNames()) {
+                String mappedField = reverseMapping.getOrDefault(solrField, solrField);
+                bookData.put(mappedField, doc.getFieldValue(solrField));
+            }
             books.add(bookData);
         }
         return books;
@@ -61,7 +67,7 @@ public class BookServiceSolrj {
         solrClient.commit(collection);
     }
 
-    public Map<String, String> getFields() {
-        return FIELDS;
+    public Map<String, String> getFieldsMapping() {
+        return fieldsService.getFields();
     }
 }

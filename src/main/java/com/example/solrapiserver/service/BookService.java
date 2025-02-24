@@ -31,9 +31,18 @@ public class BookService {
         doc.addField("id", book.getId());        // id книги
         doc.addField("title", book.getTitle());  // название книги
         doc.addField("authors", book.getAuthors()); // авторы книги
+        doc.addField("publisher", book.getPublisher());
+        doc.addField("publication_date", book.getPublicationDate());
+        doc.addField("isbn", book.getIsbn());
+        doc.addField("language", book.getLanguage());
+        doc.addField("genre", book.getGenre());
+        doc.addField("description", book.getDescription());
+        doc.addField("price", book.getPrice());
+        doc.addField("available", book.isAvailable());
+        doc.addField("keywords", book.getKeywords());
 
-        solrClient.add(collection, doc);         // добавляем в Solr
-        solrClient.commit(collection);           // коммитим изменения
+        solrClient.add(collection, doc);
+        solrClient.commit(collection);
     }
 
     // Поиск книг в Solr
@@ -55,7 +64,16 @@ public class BookService {
             documents.forEach(doc -> books.add(new Book(
                     (String) doc.getFirstValue("id"),
                     (String) doc.getFirstValue("title"),
-                    (List<String>) doc.getFieldValue("authors")
+                    (List<String>) doc.getFieldValue("authors"),
+                    (String) doc.getFirstValue("publisher"),
+                    (String) doc.getFirstValue("publication_date"),
+                    (String) doc.getFirstValue("isbn"),
+                    (String) doc.getFirstValue("language"),
+                    (String) doc.getFirstValue("genre"),
+                    (String) doc.getFirstValue("description"),
+                    (Double) doc.getFirstValue("price"),
+                    (Boolean) doc.getFirstValue("available"),
+                    (List<String>) doc.getFieldValue("keywords")
             )));
             return books;
         } catch (Exception e) {
@@ -70,27 +88,4 @@ public class BookService {
         solrClient.commit(collection);
     }
 
-    // Обработка загрузки CSV в Solr
-    public void uploadCsvToSolr(List<Book> books) throws Exception {
-        for (Book book : books) {
-            SolrInputDocument doc = new SolrInputDocument();
-            doc.addField("id", book.getId());
-            doc.addField("title", book.getTitle());
-            doc.addField("authors", book.getAuthors());
-
-            solrClient.add(collection, doc);
-        }
-        solrClient.commit(collection);
-    }
-
-    // Метод для добавления документа в Solr через HTTP
-    public void addBookViaHttp(Book book) throws Exception {
-        String url = "http://localhost:8983/solr/" + collection + "/update?commit=true";
-        Map<String, Object> bookDoc = Map.of(
-                "id", book.getId(),
-                "title", book.getTitle(),
-                "authors", book.getAuthors()
-        );
-        restTemplate.postForObject(url, bookDoc, String.class);
-    }
 }

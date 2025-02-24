@@ -20,4 +20,6 @@ solr:
 server:
   port: 8080
 
-
+fields:
+  file:
+    path: classpath:fields.properties
