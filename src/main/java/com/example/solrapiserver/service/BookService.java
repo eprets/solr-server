@@ -1,91 +1,86 @@
 package com.example.solrapiserver.service;
 
 import com.example.solrapiserver.model.Book;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Iterator;
 
 @Service
 @RequiredArgsConstructor
 public class BookService {
 
     private final SolrClient solrClient;
+    private final MapperService mapperService;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${solr.collection}")
     private String collection;
 
-    private final RestTemplate restTemplate;
+    public SolrDocumentList searchBooks(String query) throws Exception {
+        SolrQuery solrQuery = new SolrQuery();
+        solrQuery.setQuery(query);
+        QueryResponse response = solrClient.query(collection, solrQuery);
+        return response.getResults();
+    }
 
-    // Добавление книги в Solr
     public void addBook(Book book) throws Exception {
+        JsonNode bookJsonNode = objectMapper.valueToTree(book);
         SolrInputDocument doc = new SolrInputDocument();
-        doc.addField("id", book.getId());        // id книги
-        doc.addField("title", book.getTitle());  // название книги
-        doc.addField("authors", book.getAuthors()); // авторы книги
-        doc.addField("publisher", book.getPublisher());
-        doc.addField("publication_date", book.getPublicationDate());
-        doc.addField("isbn", book.getIsbn());
-        doc.addField("language", book.getLanguage());
-        doc.addField("genre", book.getGenre());
-        doc.addField("description", book.getDescription());
-        doc.addField("price", book.getPrice());
-        doc.addField("available", book.isAvailable());
-        doc.addField("keywords", book.getKeywords());
+
+        Iterator<String> fieldNames = bookJsonNode.fieldNames();
+        while (fieldNames.hasNext()) {
+            String jsonFieldName = fieldNames.next();
+            String solrFieldName = mapperService.getSolrFieldName(jsonFieldName);
+            JsonNode fieldValue = bookJsonNode.get(jsonFieldName);
+
+            if (fieldValue.isArray()) {
+                fieldValue.forEach(value -> doc.addField(solrFieldName, value.asText()));
+            } else if (solrFieldName.endsWith("_f")) {
+                doc.addField(solrFieldName, fieldValue.asDouble());
+            } else if (solrFieldName.endsWith("_b")) {
+                doc.addField(solrFieldName, fieldValue.asBoolean());
+            } else if (solrFieldName.endsWith("_dt")) {
+                String dateValue = fieldValue.asText();
+                // Преобразуем дату в нужный формат
+                String formattedDate = formatDateForSolr(dateValue);
+                doc.addField(solrFieldName, formattedDate);
+            } else {
+                doc.addField(solrFieldName, fieldValue.asText());
+            }
+        }
 
         solrClient.add(collection, doc);
         solrClient.commit(collection);
     }
 
-    // Поиск книг в Solr
-    public List<Book> searchBooks(String keyword) throws Exception {
-        String queryStr = "*:*";
-        if (keyword != null && !keyword.trim().isEmpty() && !"*".equals(keyword)) {
-            queryStr = "title:\"" + keyword + "\" OR authors:\"" + keyword + "\"";
-        }
-        System.out.println("Query: " + queryStr);
-
-        SolrQuery query = new SolrQuery(queryStr);
-        try {
-            QueryResponse response = solrClient.query(collection, query);
-            var documents = response.getResults();
-
-            System.out.println("Number of documents found: " + documents.getNumFound());
-
-            List<Book> books = new ArrayList<>();
-            documents.forEach(doc -> books.add(new Book(
-                    (String) doc.getFirstValue("id"),
-                    (String) doc.getFirstValue("title"),
-                    (List<String>) doc.getFieldValue("authors"),
-                    (String) doc.getFirstValue("publisher"),
-                    (String) doc.getFirstValue("publication_date"),
-                    (String) doc.getFirstValue("isbn"),
-                    (String) doc.getFirstValue("language"),
-                    (String) doc.getFirstValue("genre"),
-                    (String) doc.getFirstValue("description"),
-                    (Double) doc.getFirstValue("price"),
-                    (Boolean) doc.getFirstValue("available"),
-                    (List<String>) doc.getFieldValue("keywords")
-            )));
-            return books;
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new Exception("Ошибка при выполнении запроса к Solr: " + e.getMessage());
-        }
-    }
-
-    // Удаление книги по ID
-    public void deleteBookById(String id) throws Exception {
+    public void deleteBook(String id) throws Exception {
         solrClient.deleteById(collection, id);
         solrClient.commit(collection);
     }
 
+    // Метод для преобразования даты в формат, который понимает Solr
+    private String formatDateForSolr(String date) {
+        try {
+            // Преобразуем строку в дату
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            java.util.Date parsedDate = sdf.parse(date);
+            // Переводим дату в формат, который использует Solr
+            SimpleDateFormat solrDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+            return solrDateFormat.format(parsedDate);
+        } catch (ParseException e) {
+            // Если не удается распарсить дату, возвращаем null или дефолтное значение
+            return null;
+        }
+    }
 }
