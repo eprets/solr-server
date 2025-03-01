@@ -25,7 +25,6 @@ public class MapperService {
             properties.load(inputStream);
             for (String key : properties.stringPropertyNames()) {
                 fieldsMapping.put(key, properties.getProperty(key));
-                // Поскольку у нас есть только имена полей, мы можем добавить соответствующие типы (например, _ss, _f, _dt и т. д.)
                 String fieldType = getFieldType(properties.getProperty(key));
                 fieldsTypes.put(key, fieldType);
             }
