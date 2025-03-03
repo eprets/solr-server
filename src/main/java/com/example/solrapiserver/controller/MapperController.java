@@ -16,15 +16,20 @@ public class MapperController {
 
     private final MapperService mapperService;
 
-    // Получение всех маппингов (имя поля JSON -> имя поля Solr)
     @GetMapping("/fields")
     public Map<String, String> getAllFields() {
         return mapperService.getAllFields();
     }
 
-    // Получение типа поля в Solr для заданного поля JSON
-    @GetMapping("/fieldType")
-    public String getFieldType(@RequestParam String jsonFieldName) {
-        return mapperService.getSolrFieldType(jsonFieldName);
+    // Получение Solr-поля по названию поля из сущности Book
+    @GetMapping("/toSolr")
+    public String getSolrField(@RequestParam String jsonFieldName) {
+        return mapperService.getSolrFieldName(jsonFieldName);
+    }
+
+    // Получение названия поля сущности Book по Solr-полю
+    @GetMapping("/toJson")
+    public String getJsonField(@RequestParam String solrFieldName) {
+        return mapperService.getJsonFieldName(solrFieldName);
     }
 }

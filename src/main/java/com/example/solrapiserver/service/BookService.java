@@ -78,9 +78,6 @@ public class BookService {
             // Переводим дату в формат, который использует Solr
             SimpleDateFormat solrDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
             return solrDateFormat.format(parsedDate);
-        } catch (ParseException e) {
-            // Если не удается распарсить дату, возвращаем null или дефолтное значение
-            return null;
-        }
+        } catch (ParseException e) { return null; }
     }
 }

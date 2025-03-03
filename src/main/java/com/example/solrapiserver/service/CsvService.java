@@ -58,7 +58,7 @@ public class CsvService {
                 } else if (solrFieldName.endsWith("_b")) {
                     doc.addField(solrFieldName, fieldValue.asBoolean());
                 } else if (solrFieldName.endsWith("_dt")) {
-                    doc.addField(solrFieldName, fieldValue.asText() + "T00:00:00Z"); // Дата в формате UTC
+                    doc.addField(solrFieldName, fieldValue.asText() + "T00:00:00Z");
                 } else {
                     doc.addField(solrFieldName, fieldValue.asText());
                 }

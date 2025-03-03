@@ -16,6 +16,7 @@ import java.util.Properties;
 public class MapperService {
 
     private final Map<String, String> fieldsMapping = new HashMap<>();
+    private final Map<String, String> reverseFieldsMapping = new HashMap<>();
     private final Map<String, String> fieldsTypes = new HashMap<>();
 
     @PostConstruct
@@ -24,8 +25,10 @@ public class MapperService {
         try (InputStream inputStream = new ClassPathResource("fields.properties").getInputStream()) {
             properties.load(inputStream);
             for (String key : properties.stringPropertyNames()) {
-                fieldsMapping.put(key, properties.getProperty(key));
-                String fieldType = getFieldType(properties.getProperty(key));
+                String solrField = properties.getProperty(key);
+                fieldsMapping.put(key, solrField);
+                reverseFieldsMapping.put(solrField, key);
+                String fieldType = getFieldType(solrField);
                 fieldsTypes.put(key, fieldType);
             }
         }
@@ -33,6 +36,10 @@ public class MapperService {
 
     public String getSolrFieldName(String jsonFieldName) {
         return fieldsMapping.getOrDefault(jsonFieldName, jsonFieldName);
+    }
+
+    public String getJsonFieldName(String solrFieldName) {
+        return reverseFieldsMapping.getOrDefault(solrFieldName, solrFieldName);
     }
 
     // Метод для получения всех полей
