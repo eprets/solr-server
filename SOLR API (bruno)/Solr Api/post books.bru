@@ -1,0 +1,28 @@
+meta {
+  name: post books
+  type: http
+  seq: 6
+}
+
+post {
+  url: http://localhost:8080/books/add
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+     "id": "19",
+          "title": "Java Programming",
+          "authors": ["dfghjkl"],
+          "publisher": "TechBooks",
+          "publication_date": "2005-11-24T00:00:00Z",
+          "isbn": "1234567890",
+          "language": "English",
+          "genre": "Programming",
+          "description": "A comprehensive guide to Java programming.",
+          "price": 29.99,
+          "available": true,
+          "keywords": ["Java, Programming, Tech"]
+  }
+}

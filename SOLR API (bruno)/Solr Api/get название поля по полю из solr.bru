@@ -1,0 +1,15 @@
+meta {
+  name: get название поля по полю из solr
+  type: http
+  seq: 11
+}
+
+get {
+  url: http://localhost:8080/mapper/toJson?solrFieldName=title_s
+  body: none
+  auth: none
+}
+
+params:query {
+  solrFieldName: title_s
+}

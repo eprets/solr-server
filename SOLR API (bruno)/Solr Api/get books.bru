@@ -1,0 +1,15 @@
+meta {
+  name: get books
+  type: http
+  seq: 7
+}
+
+get {
+  url: http://localhost:8080/books/search?query=title_s:"Leader"
+  body: multipartForm
+  auth: none
+}
+
+params:query {
+  query: title_s:"Leader"
+}
