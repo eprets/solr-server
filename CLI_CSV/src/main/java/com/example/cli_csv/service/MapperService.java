@@ -21,7 +21,7 @@ public class MapperService {
                 fieldsMapping.put(key, properties.getProperty(key));
             }
         } catch (IOException e) {
-            throw new RuntimeException("Ошибка загрузки маппинга: " + e.getMessage());
+            throw new RuntimeException("Error mapping: " + e.getMessage());
         }
     }
 
