@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: libs
+
+solr:
+  host: http://localhost:8983/solr
+  collection: books
+
+server:
+  port: 8080

@@ -18,29 +18,19 @@ subprojects {
 
     sourceCompatibility = '11'
     targetCompatibility = '11'
-
-    dependencies {
-        implementation 'org.springframework.boot:spring-boot-starter'
-    }
-}
-
-project(':libs') {
-    dependencies {
-        implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.3'
-        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.12.3'
-        implementation 'org.apache.solr:solr-solrj:8.11.0'
-    }
 }
 
 project(':apps:CLI_CSV') {
     dependencies {
         implementation project(':libs')
         implementation project(':service')
+        implementation 'org.springframework.boot:spring-boot-starter'
     }
 }
 
 project(':service') {
     dependencies {
         implementation project(':libs')
+        implementation 'org.springframework.boot:spring-boot-starter'
     }
 }

@@ -16,7 +16,8 @@ public class CsvProcessor {
         this.solrUploader = new SolrUpload(solrUrl, mappingPath);
     }
 
-    public void processCsv(String csvPath) {
+
+    public List<Book> processCsv(String csvPath)  {
         try {
             System.out.println("Start CSV...");
 
@@ -33,5 +34,6 @@ public class CsvProcessor {
         } catch (Exception e) {
             System.out.println("Error CSV: " + e.getMessage());
         }
+        return null;
     }
 }
