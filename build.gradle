@@ -1,0 +1,46 @@
+plugins {
+    id 'java'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'org.springframework.boot' version '2.5.4'
+}
+
+group = 'com.example'
+version = '1.0.0'
+
+allprojects {
+    repositories {
+        mavenCentral()
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+
+    sourceCompatibility = '11'
+    targetCompatibility = '11'
+
+    dependencies {
+        implementation 'org.springframework.boot:spring-boot-starter'
+    }
+}
+
+project(':libs') {
+    dependencies {
+        implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.3'
+        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.12.3'
+        implementation 'org.apache.solr:solr-solrj:8.11.0'
+    }
+}
+
+project(':apps:CLI_CSV') {
+    dependencies {
+        implementation project(':libs')
+        implementation project(':service')
+    }
+}
+
+project(':service') {
+    dependencies {
+        implementation project(':libs')
+    }
+}
