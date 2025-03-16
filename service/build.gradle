@@ -1,14 +1,20 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' // Добавляем Spring Boot
-    id 'io.spring.dependency-management' // Управление зависимостями Spring Boot
-}
-
-dependencies {
-    implementation project(':libs')
-    implementation 'org.springframework.boot:spring-boot-starter'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'org.springframework.boot' version '2.5.4'
 }
 
 repositories {
     mavenCentral()
 }
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.3'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.12.3'
+    implementation 'org.apache.solr:solr-solrj:8.11.0'
+    compileOnly 'org.projectlombok:lombok:1.18.36'
+    implementation project(':libs')
+}
+

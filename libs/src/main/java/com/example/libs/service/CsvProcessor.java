@@ -5,17 +5,19 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.example.libs.model.Book;
 import com.example.libs.solr.SolrUpload;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
+@Component
 public class CsvProcessor {
     private final SolrUpload solrUploader;
 
-    public CsvProcessor(String solrUrl, String mappingPath) {
-        this.solrUploader = new SolrUpload(solrUrl, mappingPath);
+    public CsvProcessor(SolrUpload solrUploader) {
+        this.solrUploader = solrUploader;
     }
-
 
     public List<Book> processCsv(String csvPath)  {
         try {

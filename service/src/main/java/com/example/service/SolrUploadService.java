@@ -1,19 +1,21 @@
-package org.example.service;
+package com.example.service;
 
 import com.example.libs.model.Book;
 import com.example.libs.service.CsvProcessor;
 import com.example.libs.solr.SolrUpload;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class SolrUploadService {
 
     private final SolrUpload solrUpload;
     private final CsvProcessor csvProcessor;
 
-    public SolrUploadService(String solrUrl, String mappingPath) {
-        this.solrUpload = new SolrUpload(solrUrl, mappingPath);
-        this.csvProcessor = new CsvProcessor(solrUrl, mappingPath);
+    public SolrUploadService(SolrUpload solrUpload, CsvProcessor csvProcessor) {
+        this.solrUpload = solrUpload;
+        this.csvProcessor = csvProcessor;
     }
 
     public void uploadToSolr(String csvPath) throws Exception {

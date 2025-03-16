@@ -1,5 +1,3 @@
 rootProject.name = 'project-root'
 
-include 'apps:CLI_CSV'
-include 'libs'
-include 'service'
+include 'apps','libs', 'service'

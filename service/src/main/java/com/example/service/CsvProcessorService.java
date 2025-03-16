@@ -1,13 +1,17 @@
 package com.example.service;
 
 import com.example.libs.service.CsvProcessor;
+import org.springframework.stereotype.Service;
+
+@Service
+
 
 public class CsvProcessorService {
 
     private final CsvProcessor csvProcessor;
 
-    public CsvProcessorService(String solrUrl, String mappingPath) {
-        this.csvProcessor = new CsvProcessor(solrUrl, mappingPath);
+    public CsvProcessorService(CsvProcessor csvProcessor) {
+        this.csvProcessor = csvProcessor;
     }
 
     public void processCsv(String csvPath) {

@@ -7,20 +7,24 @@ import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrInputDocument;
 import com.example.libs.model.Book;
 import com.example.libs.service.MapperService;
+import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
+@Component
 public class SolrUpload {
     private final SolrClient solrClient;
     private final MapperService mapperService;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
     private final String collection;
 
-    public SolrUpload(String solrUrl, String mappingPath) {
-        this.solrClient = new HttpSolrClient.Builder(solrUrl).build();
-        this.mapperService = new MapperService(mappingPath);
-        this.collection = "books";
+    public SolrUpload(SolrClient solrClient, MapperService mapperService, ObjectMapper objectMapper, String collection) {
+        this.solrClient = solrClient;
+        this.mapperService = mapperService;
+        this.objectMapper = objectMapper;
+        this.collection = collection;
     }
 
     public void uploadToSolr(List<Book> books) throws Exception {
