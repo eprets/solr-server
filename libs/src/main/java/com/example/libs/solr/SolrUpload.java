@@ -2,19 +2,18 @@ package com.example.libs.solr;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.apache.solr.common.SolrInputDocument;
 import com.example.libs.model.Book;
 import com.example.libs.service.MapperService;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.common.SolrInputDocument;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
 @Component
 public class SolrUpload {
+
     private final SolrClient solrClient;
     private final MapperService mapperService;
     private final ObjectMapper objectMapper;

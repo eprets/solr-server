@@ -19,23 +19,20 @@ public class CsvProcessor {
         this.solrUploader = solrUploader;
     }
 
-    public List<Book> processCsv(String csvPath)  {
-        try {
-            System.out.println("Start CSV...");
+    public List<Book> processCsv(String csvPath) {
+        System.out.println("Start CSV...");
 
-            File csvFile = new File(csvPath);
-            CsvMapper csvMapper = new CsvMapper();
-            CsvSchema schema = CsvSchema.emptySchema().withHeader();
+        File csvFile = new File(csvPath);
+        CsvMapper csvMapper = new CsvMapper();
+        CsvSchema schema = CsvSchema.emptySchema().withHeader();
 
-            try (MappingIterator<Book> iterator = csvMapper.readerFor(Book.class).with(schema).readValues(csvFile)) {
-                List<Book> books = iterator.readAll();
-                solrUploader.uploadToSolr(books);
-            }
-
-            System.out.println("The end good!");
+        try (MappingIterator<Book> iterator = csvMapper.readerFor(Book.class).with(schema).readValues(csvFile)) {
+            List<Book> books = iterator.readAll();
+            solrUploader.uploadToSolr(books);
+            return books;
         } catch (Exception e) {
-            System.out.println("Error CSV: " + e.getMessage());
+            throw new RuntimeException(e);
         }
-        return null;
+
     }
 }

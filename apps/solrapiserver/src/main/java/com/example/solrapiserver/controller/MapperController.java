@@ -1,6 +1,6 @@
-package com.example.service;
+package com.example.solrapiserver.controller;
 
-import com.example.libs.service.MapperService;
+import com.example.service.MapperService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;

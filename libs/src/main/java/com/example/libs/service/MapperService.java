@@ -1,6 +1,5 @@
 package com.example.libs.service;
 
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -16,16 +15,17 @@ public class MapperService {
     private final Map<String, String> reverseFieldsMapping = new HashMap<>();
     private final Map<String, String> fieldsTypes = new HashMap<>();
 
-    private void loadFields(String mappingPath) throws IOException {
+    public void loadFields(String mappingPath) throws IOException {
         Properties properties = new Properties();
-        try (InputStream inputStream = new ClassPathResource(mappingPath).getInputStream()) {
-            properties.load(inputStream);
-            for (String key : properties.stringPropertyNames()) {
-                String solrField = properties.getProperty(key);
-                fieldsMapping.put(key, solrField);
-                reverseFieldsMapping.put(solrField, key);
-                String fieldType = getFieldType(solrField);
-                fieldsTypes.put(key, fieldType);
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(mappingPath)) {
+            if (inputStream != null) {
+                properties.load(inputStream);
+                for (String key : properties.stringPropertyNames()) {
+                    String solrField = properties.getProperty(key);
+                    fieldsMapping.put(key, solrField);
+                    reverseFieldsMapping.put(solrField, key);
+                    fieldsTypes.put(key, getFieldType(solrField));
+                }
             }
         }
     }

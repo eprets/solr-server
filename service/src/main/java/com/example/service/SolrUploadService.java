@@ -1,8 +1,8 @@
 package com.example.service;
 
 import com.example.libs.model.Book;
-import com.example.libs.service.CsvProcessor;
 import com.example.libs.solr.SolrUpload;
+import com.example.libs.service.CsvProcessor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,10 +19,7 @@ public class SolrUploadService {
     }
 
     public void uploadToSolr(String csvPath) throws Exception {
-        // Обрабатываем CSV, чтобы получить список книг
-        List<Book> books = csvProcessor.processCsv(csvPath); // Убедитесь, что метод processCsv возвращает список книг
-
-        // Загружаем книги в Solr
+        List<Book> books = csvProcessor.processCsv(csvPath);
         solrUpload.uploadToSolr(books);
     }
 }

@@ -1,10 +1,28 @@
-package org.example.cli_csv;
+package com.example.cli_csv;
 
 import com.example.libs.service.CsvProcessor;
-import com.example.libs.solr.SolrUpload;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 
-public class CliCsvApplication {
+@SpringBootApplication
+@ComponentScan(basePackages = "com.example")
+public class CliCsvApplication implements CommandLineRunner {
+
+    private final CsvProcessor csvProcessor;
+
+    public CliCsvApplication(CsvProcessor csvProcessor) {
+        this.csvProcessor = csvProcessor;
+    }
+
     public static void main(String[] args) {
+        SpringApplication.run(CliCsvApplication.class, args);
+    }
+
+    @Override
+    public void run(String... args) {
         if (args.length != 3) {
             System.out.println("Использование: java -jar CLI_CSV.jar <путь_к_CSV> <путь_к_маппингу> <Solr_URL>");
             return;
@@ -15,7 +33,7 @@ public class CliCsvApplication {
         String solrUrl = args[2];
 
         // Создаем процессор и запускаем обработку CSV
-        CsvProcessor processor = new CsvProcessor(solrUrl, mappingPath);
-        processor.processCsv(csvPath);
+        csvProcessor.processCsv(csvPath);
+        System.out.println("CSV обработан и данные загружены в Solr.");
     }
 }
