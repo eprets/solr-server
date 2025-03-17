@@ -19,7 +19,6 @@ import java.text.SimpleDateFormat;
 import java.util.Iterator;
 
 @Service
-
 public class BookService {
 
     private final SolrClient solrClient;
