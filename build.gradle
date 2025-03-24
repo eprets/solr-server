@@ -11,22 +11,18 @@ repositories {
 }
 
 dependencies {
-
-    implementation 'org.apache.solr:solr-solrj:9.4.0'
-
-    // Используем одну версию jackson-databind и jackson-dataformat-xml
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.4'
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.4'
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.13.4'
-
-    implementation 'org.slf4j:slf4j-api:1.7.32'
-    implementation 'org.slf4j:slf4j-simple:1.7.32'
-    implementation 'org.slf4j:slf4j-api:1.7.32'
-    implementation 'org.slf4j:slf4j-simple:1.7.32'
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.15.2'
     implementation 'org.codehaus.woodstox:woodstox-core-asl:4.4.1'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.0'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.15.0'
+    implementation 'org.apache.solr:solr-solrj:8.11.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
 
+    implementation 'org.slf4j:slf4j-api:1.7.32'  // SLF4J API
+    implementation 'ch.qos.logback:logback-classic:1.2.6'
 }
+
+
 
 jar {
     manifest {

@@ -2,7 +2,6 @@ package com.example.cli_json_stax;
 
 import com.example.cli_json_stax.service.JsonProcessor;
 
-
 public class CliJsonStaxApplication {
     public static void main(String[] args) {
         if (args.length != 3) {

@@ -1,6 +1,7 @@
 package com.example.cli_json_stax.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 public class Book {
