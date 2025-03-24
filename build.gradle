@@ -1,0 +1,41 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    implementation 'org.apache.solr:solr-solrj:9.4.0'
+
+    // Используем одну версию jackson-databind и jackson-dataformat-xml
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.4'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.4'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.13.4'
+
+    implementation 'org.slf4j:slf4j-api:1.7.32'
+    implementation 'org.slf4j:slf4j-simple:1.7.32'
+    implementation 'org.slf4j:slf4j-api:1.7.32'
+    implementation 'org.slf4j:slf4j-simple:1.7.32'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.15.2'
+    implementation 'org.codehaus.woodstox:woodstox-core-asl:4.4.1'
+
+}
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'com.example.cli_json_stax.CliJsonStaxApplication'
+        )
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
