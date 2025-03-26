@@ -1,15 +1,13 @@
 package com.example.cli_json_stax.service;
 
 import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.example.cli_json_stax.model.Book;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.example.cli_json_stax.solr.SolrUpload;
-import org.codehaus.stax2.XMLInputFactory2;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -17,39 +15,80 @@ import java.util.List;
 
 public class JsonProcessor {
     private final SolrUpload solrUploader;
+    private final String mappingPath;
 
     public JsonProcessor(String solrUrl, String mappingPath) {
         this.solrUploader = new SolrUpload(solrUrl, mappingPath);
+        this.mappingPath = mappingPath;
     }
 
     public void processJson(String jsonPath) {
         try {
             System.out.println("Start JSON...");
 
-            File jsonFile = new File(jsonPath);
-            XMLInputFactory2 factory = (XMLInputFactory2) javax.xml.stream.XMLInputFactory.newInstance();
-            XMLStreamReader reader = factory.createXMLStreamReader(new FileInputStream(jsonFile));
+            // Проверка доступности Solr и ядра
+            if (!solrUploader.checkSolrAvailability()) {
+                System.out.println("Solr is not available. Exiting.");
+                return;
+            }
 
-            JsonFactory jsonFactory = new JsonFactory();
-            JsonParser jsonParser = jsonFactory.createParser(new FileInputStream(jsonFile));
-
-            ObjectMapper objectMapper = new ObjectMapper();
-            while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
-                if (jsonParser.getCurrentToken() == JsonToken.START_OBJECT) {
-                    Book book = objectMapper.readValue(jsonParser, Book.class);
-                    try {
-                        solrUploader.uploadToSolr(List.of(book));
-                    } catch (Exception e) {
-                        System.out.println("Error uploading book to Solr: " + e.getMessage());
-                    }
+            if (!solrUploader.checkCoreAvailability()) {
+                System.out.println("Core " + solrUploader.getCollection() + " not found. Creating core...");
+                try {
+                    solrUploader.createCore();
+                } catch (IOException e) {
+                    System.out.println("Error creating core: " + e.getMessage());
+                    return;
                 }
             }
 
+            // Проверка, что путь до JSON файла существует и является файлом
+            File jsonFile = new File(jsonPath);
+            if (!jsonFile.exists() || !jsonFile.isFile()) {
+                System.out.println("Invalid JSON file path: " + jsonPath);
+                return;
+            }
+
+            // Проверка, что путь до файла маппинга существует и является файлом
+            File mappingFile = new File(mappingPath);
+            if (!mappingFile.exists() || !mappingFile.isFile()) {
+                System.out.println("Invalid mapping file path: " + mappingPath);
+                return;
+            }
+
+            // Парсинг JSON-файла
+            JsonFactory jsonFactory = new JsonFactory();
+            try (JsonParser jsonParser = jsonFactory.createParser(new FileInputStream(jsonFile))) {
+                while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+                    if (jsonParser.getCurrentToken() == JsonToken.START_OBJECT) {
+                        try {
+                            JsonNode bookJsonNode = parseJsonToNode(jsonParser);
+                            solrUploader.uploadToSolr(List.of(bookJsonNode)); // Отправка данных в Solr
+                        } catch (Exception e) {
+                            System.out.println("Error uploading book to Solr: " + e.getMessage());
+                        }
+                    }
+                }
+            }catch (JsonParseException e) {
+                System.out.println("Invalid JSON format: " + e.getMessage());
+            }catch (IOException e) {
+                System.out.println("Error reading JSON: " + e.getMessage());
+            }catch (Exception e) {
+                System.out.println("Unexpected error while processing JSON: " + e.getMessage());
+            }
+
             System.out.println("JSON processing completed!");
-        } catch (IOException | XMLStreamException e) {
-            System.out.println("Error JSON: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Unexpected error: " + e.getMessage());
         } finally {
             System.out.println("Program finished.");
         }
     }
+
+    private JsonNode parseJsonToNode(JsonParser jsonParser) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        jsonParser.setCodec(objectMapper);
+        return objectMapper.readTree(jsonParser);
+    }
+
 }

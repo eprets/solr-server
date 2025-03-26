@@ -1,6 +1,6 @@
 [
   {
-    "id": "1",
+    "id": "12345678",
     "title": "Deep Space",
     "authors": [
       "John Doe",
@@ -213,6 +213,70 @@
       "trade",
       "produce",
       "day"
+    ]
+  },
+  {
+    "id": "11",
+    "title": "Deep Space",
+    "authors": [
+      "John Doe",
+      "Alice Smith"
+    ],
+    "publisher": "HarperCollins",
+    "publication_date": "2011-12-12",
+    "isbn": "978-0-938214-11-1",
+    "language": "English",
+    "genre": "Mystery",
+    "description": "A thrilling adventure through time and space.",
+    "price": 62.1,
+    "available": false,
+    "keywords": [
+      "mystery",
+      "adventure",
+      "book",
+      "fantasy"
+    ]
+  },
+  {
+    "id": "12",
+    "title": "Mysterious Ways",
+    "authors": [
+      "Michael Brown"
+    ],
+    "publisher": "Penguin Books",
+    "publication_date": "2012-01-13",
+    "isbn": "978-0-938214-12-2",
+    "language": "Spanish",
+    "genre": "Science Fiction",
+    "description": "A deep dive into the mysteries of the universe.",
+    "price": 63.2,
+    "available": true,
+    "keywords": [
+      "science",
+      "technology",
+      "future",
+      "AI"
+    ]
+  },
+  {
+    "id": "13",
+    "title": "Silent Echoes",
+    "authors": [
+      "Emily Davis"
+    ],
+    "publisher": "Random House",
+    "publication_date": "2013-02-14",
+    "isbn": "978-0-938214-13-3",
+    "language": "German",
+    "genre": "Non-Fiction",
+    "description": "Echoes of silence fill the vast emptiness.",
+    "price": 64.3,
+    "available": false,
+    "keywords": [
+      "history",
+      "war",
+      "politics",
+      "economy"
     ]
   }
 ]
