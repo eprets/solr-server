@@ -7,6 +7,9 @@ import org.apache.solr.common.SolrInputDocument;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.net.HttpURLConnection;
@@ -22,74 +25,66 @@ public class SolrUpload {
     public SolrUpload(String solrUrl, String mappingPath) {
         this.solrClient = new HttpSolrClient.Builder(solrUrl).build();
         this.mapperService = new MapperService(mappingPath);
-        this.collection = "books"; // Убедись, что коллекция называется "books"
-        this.solrUrl = solrUrl; // Сохраняем URL Solr-сервера
+        this.collection = "books";
+        this.solrUrl = solrUrl;
     }
 
-    // Метод для проверки доступности Solr
     public boolean checkSolrAvailability() {
         try {
-            // Теперь отправляем запрос на главную страницу Solr
-            URL url = new URL(solrUrl );
+            URL url = new URL(solrUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             int responseCode = connection.getResponseCode();
-
-            // Проверяем, что сервер возвращает код 200 OK
-            return responseCode == HttpURLConnection.HTTP_OK; // 200 OK
+            return responseCode == HttpURLConnection.HTTP_OK;
         } catch (IOException e) {
             System.out.println("Solr server is not available: " + e.getMessage());
             return false;
         }
     }
 
-
-    // Метод для проверки существования ядра
     public boolean checkCoreAvailability() {
         try {
-            // Проверяем существование ядра, отправив запрос на /admin/cores?action=STATUS
             URL url = new URL(solrUrl + "/admin/cores?action=STATUS&core=" + collection);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             int responseCode = connection.getResponseCode();
 
-            return responseCode == HttpURLConnection.HTTP_OK; // 200 OK
+            return responseCode == HttpURLConnection.HTTP_OK;
         } catch (IOException e) {
             System.out.println("Error checking core availability: " + e.getMessage());
             return false;
         }
     }
 
-    // Метод для создания ядра пока не рабочий
-    public void createCore() throws IOException {
-        // Проверка, существует ли коллекция
-        String checkCoreUrl = solrUrl + "/admin/cores?action=STATUS&core=" + collection;
-        HttpURLConnection checkConnection = (HttpURLConnection) new URL(checkCoreUrl).openConnection();
-        checkConnection.setRequestMethod("GET");
-        int checkResponseCode = checkConnection.getResponseCode();
-
-        if (checkResponseCode != HttpURLConnection.HTTP_OK) {
-            // Коллекция не существует, создаём её
-            String createCoreUrl = solrUrl + "/admin/cores?action=CREATE&name=" + collection + "&configSet=sample_techproducts_configs";
-            HttpURLConnection connection = (HttpURLConnection) new URL(createCoreUrl).openConnection();
+    public boolean createCore() {
+        try {
+            URL url = new URL(solrUrl + "/admin/cores?action=CREATE&name=" + collection + "&configSet=sample_techproducts_configs");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             int responseCode = connection.getResponseCode();
 
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                System.out.println("Core " + collection + " created successfully.");
-            } else {
-                System.out.println("Error creating core: " + responseCode);
-            }
-        } else {
-            System.out.println("Core " + collection + " already exists.");
+            // Проверяем, что коллекция была успешно создана
+            return responseCode == HttpURLConnection.HTTP_OK;
+        } catch (IOException e) {
+            System.out.println("Error creating core: " + e.getMessage());
+            return false;
         }
     }
 
-
-
-    // Основной метод для загрузки данных в Solr
     public void uploadToSolr(List<JsonNode> booksJsonNodes) throws Exception {
         int totalBooks = booksJsonNodes.size();
+
+        // Проверка наличия коллекции перед загрузкой
+        if (!checkCoreAvailability()) {
+            System.out.println("Core not found. Creating core...");
+            if (!createCore()) {
+                System.out.println("Failed to create core. Exiting.");
+                return;
+            } else {
+                System.out.println("Core created successfully.");
+            }
+        }
+
         for (int i = 0; i < totalBooks; i += BATCH_SIZE) {
             int end = Math.min(i + BATCH_SIZE, totalBooks);
             List<JsonNode> batch = booksJsonNodes.subList(i, end);
@@ -102,7 +97,16 @@ public class SolrUpload {
                     String solrFieldName = mapperService.getSolrFieldName(jsonFieldName);
                     JsonNode fieldValue = bookJsonNode.get(jsonFieldName);
 
-                    if (fieldValue.isArray()) {
+                    if ("publication_date".equals(jsonFieldName)) {
+                        try {
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                            Date date = dateFormat.parse(fieldValue.asText());
+                            String formattedDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(date);
+                            doc.addField(solrFieldName, formattedDate);
+                        } catch (ParseException e) {
+                            System.out.println("Error parsing date: " + fieldValue.asText());
+                        }
+                    } else if (fieldValue.isArray()) {
                         fieldValue.forEach(value -> doc.addField(solrFieldName, value.asText()));
                     } else {
                         doc.addField(solrFieldName, fieldValue.asText());

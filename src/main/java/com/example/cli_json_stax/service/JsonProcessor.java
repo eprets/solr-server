@@ -32,31 +32,23 @@ public class JsonProcessor {
                 return;
             }
 
-            if (!solrUploader.checkCoreAvailability()) {
+            if (solrUploader.checkCoreAvailability()) {
                 System.out.println("Core " + solrUploader.getCollection() + " not found. Creating core...");
-                try {
-                    solrUploader.createCore();
-                } catch (IOException e) {
-                    System.out.println("Error creating core: " + e.getMessage());
-                    return;
-                }
+                solrUploader.createCore();
             }
 
-            // Проверка, что путь до JSON файла существует и является файлом
             File jsonFile = new File(jsonPath);
             if (!jsonFile.exists() || !jsonFile.isFile()) {
                 System.out.println("Invalid JSON file path: " + jsonPath);
                 return;
             }
 
-            // Проверка, что путь до файла маппинга существует и является файлом
             File mappingFile = new File(mappingPath);
             if (!mappingFile.exists() || !mappingFile.isFile()) {
                 System.out.println("Invalid mapping file path: " + mappingPath);
                 return;
             }
 
-            // Парсинг JSON-файла
             JsonFactory jsonFactory = new JsonFactory();
             try (JsonParser jsonParser = jsonFactory.createParser(new FileInputStream(jsonFile))) {
                 while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
@@ -90,5 +82,4 @@ public class JsonProcessor {
         jsonParser.setCodec(objectMapper);
         return objectMapper.readTree(jsonParser);
     }
-
 }
