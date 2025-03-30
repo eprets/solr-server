@@ -8,9 +8,6 @@ import org.apache.solr.common.SolrInputDocument;
 import com.example.cli_csv.model.Book;
 import com.example.cli_csv.service.MapperService;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -37,16 +34,7 @@ public class SolrUpload {
                 String solrFieldName = mapperService.getSolrFieldName(jsonFieldName);
                 JsonNode fieldValue = bookJsonNode.get(jsonFieldName);
 
-                if ("publication_date".equals(jsonFieldName)) {
-                    try {
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                        Date date = dateFormat.parse(fieldValue.asText());
-                        String formattedDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(date);
-                        doc.addField(solrFieldName, formattedDate);
-                    } catch (ParseException e) {
-                        System.out.println("Error parsing date: " + fieldValue.asText());
-                    }
-                } else if (fieldValue.isArray()) {
+                if (fieldValue.isArray()) {
                     fieldValue.forEach(value -> doc.addField(solrFieldName, value.asText()));
                 } else {
                     doc.addField(solrFieldName, fieldValue.asText());

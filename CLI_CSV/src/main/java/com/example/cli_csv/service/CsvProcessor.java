@@ -24,6 +24,7 @@ public class CsvProcessor {
             CsvMapper csvMapper = new CsvMapper();
             CsvSchema schema = CsvSchema.emptySchema().withHeader();
 
+            // Используем try-with-resources
             try (MappingIterator<Book> iterator = csvMapper.readerFor(Book.class).with(schema).readValues(csvFile)) {
                 List<Book> books = iterator.readAll();
                 solrUploader.uploadToSolr(books);
@@ -34,4 +35,7 @@ public class CsvProcessor {
             System.out.println("Error CSV: " + e.getMessage());
         }
     }
+
+
+
 }
