@@ -29,4 +29,3 @@ public class MapperService {
         return fieldsMapping.getOrDefault(jsonFieldName, jsonFieldName);
     }
 }
-
