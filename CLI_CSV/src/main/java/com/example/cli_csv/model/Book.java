@@ -19,6 +19,7 @@ public class Book {
     @JsonProperty("publication_date")
     private String publicationDate;
 
+
     @JsonProperty("isbn")
     private String isbn;
 
@@ -40,6 +41,5 @@ public class Book {
     @JsonProperty("keywords")
     private List<String> keywords;
 
-    // Пустой конструктор нужен для Jackson
     public Book() {}
 }
