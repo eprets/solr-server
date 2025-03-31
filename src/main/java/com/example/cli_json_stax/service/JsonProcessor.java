@@ -12,10 +12,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.ArrayList;
 
 public class JsonProcessor {
     private final SolrUpload solrUploader;
     private final String mappingPath;
+    private static final int BATCH_SIZE = 10; // Размер пакета для загрузки в Solr
 
     public JsonProcessor(String solrUrl, String mappingPath) {
         this.solrUploader = new SolrUpload(solrUrl, mappingPath);
@@ -37,35 +39,35 @@ public class JsonProcessor {
                 solrUploader.createCore();
             }
 
-            File jsonFile = new File(jsonPath);
-            if (!jsonFile.exists() || !jsonFile.isFile()) {
-                System.out.println("Invalid JSON file path: " + jsonPath);
-                return;
-            }
+            // Валидация файлов перед обработкой
+            File jsonFile = validateFile(jsonPath, "JSON");
+            File mappingFile = validateFile(mappingPath, "mapping");
 
-            File mappingFile = new File(mappingPath);
-            if (!mappingFile.exists() || !mappingFile.isFile()) {
-                System.out.println("Invalid mapping file path: " + mappingPath);
-                return;
-            }
-
+            List<JsonNode> booksBatch = new ArrayList<>();
             JsonFactory jsonFactory = new JsonFactory();
             try (JsonParser jsonParser = jsonFactory.createParser(new FileInputStream(jsonFile))) {
                 while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
                     if (jsonParser.getCurrentToken() == JsonToken.START_OBJECT) {
                         try {
                             JsonNode bookJsonNode = parseJsonToNode(jsonParser);
-                            solrUploader.uploadToSolr(List.of(bookJsonNode)); // Отправка данных в Solr
+                            booksBatch.add(bookJsonNode);
+                            if (booksBatch.size() >= BATCH_SIZE) {
+                                solrUploader.uploadToSolr(booksBatch);
+                                booksBatch.clear();
+                            }
                         } catch (Exception e) {
                             System.out.println("Error uploading book to Solr: " + e.getMessage());
                         }
                     }
                 }
-            }catch (JsonParseException e) {
+                if (!booksBatch.isEmpty()) {
+                    solrUploader.uploadToSolr(booksBatch);
+                }
+            } catch (JsonParseException e) {
                 System.out.println("Invalid JSON format: " + e.getMessage());
-            }catch (IOException e) {
+            } catch (IOException e) {
                 System.out.println("Error reading JSON: " + e.getMessage());
-            }catch (Exception e) {
+            } catch (Exception e) {
                 System.out.println("Unexpected error while processing JSON: " + e.getMessage());
             }
 
@@ -75,6 +77,14 @@ public class JsonProcessor {
         } finally {
             System.out.println("Program finished.");
         }
+    }
+
+    private File validateFile(String filePath, String fileType) throws IllegalArgumentException {
+        File file = new File(filePath);
+        if (!file.exists() || !file.isFile()) {
+            throw new IllegalArgumentException("Invalid " + fileType + " file path: " + filePath);
+        }
+        return file;
     }
 
     private JsonNode parseJsonToNode(JsonParser jsonParser) throws IOException {
