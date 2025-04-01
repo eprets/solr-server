@@ -2,6 +2,7 @@ package com.example.cli_json_stax.solr;
 
 import com.example.cli_json_stax.service.MapperService;
 import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrInputDocument;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -19,7 +20,6 @@ public class SolrUpload {
     private final SolrClient solrClient;
     private final MapperService mapperService;
     private final String collection;
-    private static final int BATCH_SIZE = 100;
     private final String solrUrl;
 
     public SolrUpload(String solrUrl, String mappingPath) {
@@ -67,13 +67,11 @@ public class SolrUpload {
             return responseCode == HttpURLConnection.HTTP_OK;
         } catch (IOException e) {
             System.out.println("Error creating core: " + e.getMessage());
-            return false;
+            throw new RuntimeException(e);
         }
     }
 
     public void uploadToSolr(List<JsonNode> booksJsonNodes) throws Exception {
-        int totalBooks = booksJsonNodes.size();
-
         // Проверка наличия коллекции перед загрузкой
         if (!checkCoreAvailability()) {
             System.out.println("Core not found. Creating core...");
@@ -85,38 +83,40 @@ public class SolrUpload {
             }
         }
 
-        for (int i = 0; i < totalBooks; i += BATCH_SIZE) {
-            int end = Math.min(i + BATCH_SIZE, totalBooks);
-            List<JsonNode> batch = booksJsonNodes.subList(i, end);
+        booksJsonNodes.parallelStream()
+                .forEach(bookFromBatch -> {
+                    SolrInputDocument doc = new SolrInputDocument();
+                    Iterator<String> fieldNames = bookFromBatch.fieldNames();
+                    while (fieldNames.hasNext()) {
+                        String jsonFieldName = fieldNames.next();
+                        String solrFieldName = mapperService.getSolrFieldName(jsonFieldName);
+                        JsonNode fieldValue = bookFromBatch.get(jsonFieldName);
 
-            for (JsonNode bookJsonNode : batch) {
-                SolrInputDocument doc = new SolrInputDocument();
-                Iterator<String> fieldNames = bookJsonNode.fieldNames();
-                while (fieldNames.hasNext()) {
-                    String jsonFieldName = fieldNames.next();
-                    String solrFieldName = mapperService.getSolrFieldName(jsonFieldName);
-                    JsonNode fieldValue = bookJsonNode.get(jsonFieldName);
-
-                    if ("publication_date".equals(jsonFieldName)) {
-                        try {
-                            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                            Date date = dateFormat.parse(fieldValue.asText());
-                            String formattedDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(date);
-                            doc.addField(solrFieldName, formattedDate);
-                        } catch (ParseException e) {
-                            System.out.println("Error parsing date: " + fieldValue.asText());
+                        if ("publication_date".equals(jsonFieldName)) {
+                            try {
+                                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                                Date date = dateFormat.parse(fieldValue.asText());
+                                String formattedDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(date);
+                                doc.addField(solrFieldName, formattedDate);
+                            } catch (ParseException e) {
+                                System.out.println("Error parsing date: " + fieldValue.asText());
+                            }
+                        } else if (fieldValue.isArray()) {
+                            fieldValue.forEach(value -> doc.addField(solrFieldName, value.asText()));
+                        } else {
+                            doc.addField(solrFieldName, fieldValue.asText());
                         }
-                    } else if (fieldValue.isArray()) {
-                        fieldValue.forEach(value -> doc.addField(solrFieldName, value.asText()));
-                    } else {
-                        doc.addField(solrFieldName, fieldValue.asText());
                     }
-                }
-                solrClient.add(collection, doc);
-            }
+                    try {
+                        solrClient.add(collection, doc);
+                    } catch (SolrServerException e) {
+                        throw new RuntimeException(e);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
 
-            solrClient.commit(collection);
-        }
+        solrClient.commit(collection);
     }
 
     public String getCollection() {

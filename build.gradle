@@ -14,10 +14,10 @@ dependencies {
     implementation 'org.codehaus.woodstox:woodstox-core-asl:4.4.1'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.0'
     implementation 'com.fasterxml.jackson.core:jackson-core:2.15.0'
-    implementation 'org.apache.solr:solr-solrj:8.11.2'
+    implementation 'org.apache.solr:solr-solrj:9.4.1'
 
-    implementation 'org.slf4j:slf4j-api:1.7.32'
-    implementation 'ch.qos.logback:logback-classic:1.2.6'
+/*    implementation 'org.slf4j:slf4j-api:1.7.32'
+    implementation 'ch.qos.logback:logback-classic:1.2.6'*/
 }
 
 

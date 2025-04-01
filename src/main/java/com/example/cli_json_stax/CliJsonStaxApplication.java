@@ -14,6 +14,7 @@ public class CliJsonStaxApplication {
         String solrUrl = args[2];
 
         JsonProcessor processor = new JsonProcessor(solrUrl, mappingPath);
+        processor.validateParams(jsonPath);
         processor.processJson(jsonPath);
     }
 }
