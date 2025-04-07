@@ -11,12 +11,13 @@ import java.util.*;
 public class SolrUpload {
     private final SolrClient solrClient;
     private final MapperService mapperService;
-    private final String collection = "books";
+    private final String collection;
     private static final int BATCH_SIZE = 25;
 
-    public SolrUpload(String solrUrl, String mappingPath) {
+    public SolrUpload(String solrUrl, String collection, String mappingPath) {
         this.solrClient = new HttpSolrClient.Builder(solrUrl).build();
         this.mapperService = new MapperService(mappingPath);
+        this.collection = collection;
     }
 
     public void uploadFromDb(Connection conn) throws Exception {

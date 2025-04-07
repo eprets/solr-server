@@ -5,19 +5,22 @@ import com.example.cli_db.solr.SolrUpload;
 
 public class CliDbApplication {
     public static void main(String[] args) {
-        if (args.length != 3) {
-            System.out.println("Использование: java -jar CLI_DB.jar <mapper.properties> <solr_url> <db.properties>");
+        if (args.length != 2) {
+            System.out.println("Использование: java -jar CLI_DB.jar <mapper.properties> <db.properties>");
             return;
         }
 
         String mapperPath = args[0];
-        String solrUrl = args[1];
-        String dbPropsPath = args[2];
+        String dbPropsPath = args[1];
 
         try {
+            AppConfig config = new AppConfig();
+            String solrUrl = config.getSolrUrl();
+            String collection = config.getSolrCollection();
+
             DbService dbService = new DbService(dbPropsPath, mapperPath);
             dbService.initSchema();
-            SolrUpload solrUpload = new SolrUpload(solrUrl, mapperPath);
+            SolrUpload solrUpload = new SolrUpload(solrUrl, collection, mapperPath);
             dbService.menu(solrUpload);
         } catch (Exception e) {
             e.printStackTrace();
