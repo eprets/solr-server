@@ -17,10 +17,10 @@ public class SolrUpload {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final String collection;
 
-    public SolrUpload(String solrUrl, String mappingPath) {
+    public SolrUpload(String solrUrl, String collection, String mappingPath) {
         this.solrClient = new HttpSolrClient.Builder(solrUrl).build();
         this.mapperService = new MapperService(mappingPath);
-        this.collection = "books";
+        this.collection = collection;
     }
 
     public void uploadToSolr(List<Book> books) throws Exception {

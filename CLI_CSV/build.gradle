@@ -15,6 +15,7 @@ dependencies {
     implementation 'org.apache.solr:solr-solrj:9.4.0'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.0'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.16.0'
+    implementation 'org.yaml:snakeyaml:2.2'
 
 }
 
