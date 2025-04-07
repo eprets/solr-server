@@ -12,7 +12,7 @@ public class SolrUpload {
     private final SolrClient solrClient;
     private final MapperService mapperService;
     private final String collection = "books";
-    private static final int BATCH_SIZE = 25; // размер батча для загрузки в Solr
+    private static final int BATCH_SIZE = 25;
 
     public SolrUpload(String solrUrl, String mappingPath) {
         this.solrClient = new HttpSolrClient.Builder(solrUrl).build();
@@ -49,7 +49,6 @@ public class SolrUpload {
                 }
             }
 
-            // загрузка остатков
             if (!batch.isEmpty()) {
                 solrClient.add(collection, batch);
                 solrClient.commit(collection);
