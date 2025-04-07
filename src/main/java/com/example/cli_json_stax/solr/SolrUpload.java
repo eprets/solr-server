@@ -22,10 +22,10 @@ public class SolrUpload {
     private final String collection;
     private final String solrUrl;
 
-    public SolrUpload(String solrUrl, String mappingPath) {
+    public SolrUpload(String solrUrl, String collection, String mappingPath) {
         this.solrClient = new HttpSolrClient.Builder(solrUrl).build();
         this.mapperService = new MapperService(mappingPath);
-        this.collection = "books";
+        this.collection = collection;
         this.solrUrl = solrUrl;
     }
 

@@ -17,15 +17,14 @@ import java.util.List;
 public class JsonProcessor {
     private final SolrUpload solrUploader;
     private final String mappingPath;
-    private static final int BATCH_SIZE = 50; // Размер пакета для загрузки в Solr
+    private static final int BATCH_SIZE = 25;
 
-    public JsonProcessor(String solrUrl, String mappingPath) {
-        this.solrUploader = new SolrUpload(solrUrl, mappingPath);
+    public JsonProcessor(String solrUrl, String collection, String mappingPath) {
+        this.solrUploader = new SolrUpload(solrUrl, collection, mappingPath);
         this.mappingPath = mappingPath;
     }
 
     public void validateParams(String jsonPath) {
-        // Валидация файлов перед обработкой
         validateFile(jsonPath, "JSON");
         validateFile(mappingPath, "mapping");
 
