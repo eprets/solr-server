@@ -1,7 +1,6 @@
 package com.example.cli_db.service;
 
-import com.example.common.solr.SolrUpload;
-
+import com.example.cli_db.solr.SolrDbUpload;
 import com.example.common.service.MapperService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import liquibase.Liquibase;
@@ -39,7 +38,7 @@ public class DbService {
         liquibase.update((String) null);
     }
 
-    public void menu(SolrUpload solrUpload) throws Exception {
+    public void menu(SolrDbUpload solrUpload) throws Exception {
         Scanner scanner = new Scanner(System.in);
         while (true) {
             System.out.println("\n1. Импорт из файла\n2. Отправить в Solr\n3. Выход");

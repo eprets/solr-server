@@ -1,7 +1,7 @@
 package com.example.cli_db;
 
 import com.example.cli_db.service.DbService;
-import com.example.common.solr.SolrUpload;
+import com.example.cli_db.solr.SolrDbUpload;
 import com.example.common.AppConfig;
 
 public class CliDbApplication {
@@ -21,8 +21,8 @@ public class CliDbApplication {
 
             DbService dbService = new DbService(dbPropsPath, mapperPath);
             dbService.initSchema();
-            SolrUpload solrUpload = new SolrUpload(solrUrl, collection, mapperPath);
-            dbService.menu(solrUpload);
+            SolrDbUpload solrDbUpload = new SolrDbUpload(solrUrl, collection, mapperPath);
+            dbService.menu(solrDbUpload);
         } catch (Exception e) {
             e.printStackTrace();
         }

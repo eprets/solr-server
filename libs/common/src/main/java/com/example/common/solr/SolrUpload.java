@@ -1,3 +1,4 @@
+/*
 package com.example.common.solr;
 
 import com.example.common.service.MapperService;
@@ -69,4 +70,4 @@ public class SolrUpload {
             }
         }
     }
-}
+}*/
