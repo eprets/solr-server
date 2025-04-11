@@ -11,8 +11,18 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/apps" />
             <option value="$PROJECT_DIR$/apps/CLI_DB" />
+            <option value="$PROJECT_DIR$/apps/CLI_JSON_STAX" />
             <option value="$PROJECT_DIR$/libs" />
             <option value="$PROJECT_DIR$/libs/common" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/apps/CLI_JSON_STAX" />
+        <option name="gradleJvm" value="#JAVA_HOME" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/apps/CLI_JSON_STAX" />
           </set>
         </option>
       </GradleProjectSettings>
