@@ -1,0 +1,4 @@
+rootProject.name = 'cli-db-project'
+
+include 'libs:common'
+include 'apps:CLI_DB'

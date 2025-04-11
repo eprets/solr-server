@@ -1,0 +1,11 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    implementation 'org.yaml:snakeyaml:2.2'
+    implementation 'org.apache.solr:solr-solrj:9.4.1'
+}
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
