@@ -35,6 +35,10 @@ public class SolrUpload {
                     String column = meta.getColumnName(i);
                     String solrField = mapperService.getSolrFieldName(column);
                     Object value = rs.getObject(i);
+                    if (value instanceof Clob) {
+                        Clob clob = (Clob) value;
+                        value = clob.getSubString(1, (int) clob.length());
+                    }
                     if (value != null) {
                         doc.addField(solrField, value);
                     }
