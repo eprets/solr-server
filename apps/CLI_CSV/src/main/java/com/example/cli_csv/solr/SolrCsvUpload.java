@@ -1,6 +1,5 @@
 package com.example.cli_csv.solr;
 
-
 import com.example.common.service.MapperService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,27 +7,33 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrInputDocument;
 import com.example.cli_csv.model.Book;
+import com.example.common.solr.SolrUpload;
+
 import java.text.ParseException;
-
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.io.File;
 
 public class SolrCsvUpload {
     private final SolrClient solrClient;
     private final MapperService mapperService;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final String collection;
+    private final String solrUrl;
 
     public SolrCsvUpload(String solrUrl, String collection, String mappingPath) {
         this.solrClient = new HttpSolrClient.Builder(solrUrl).build();
         this.mapperService = new MapperService(mappingPath);
         this.collection = collection;
+        this.solrUrl = solrUrl;
     }
 
     public void uploadToSolr(List<Book> books) throws Exception {
+        SolrUpload helper = new SolrUpload(solrUrl, collection);
+        if (!helper.ensureSolrAndCore()) return;
+
         for (Book book : books) {
             JsonNode bookJsonNode = objectMapper.valueToTree(book);
             SolrInputDocument doc = new SolrInputDocument();

@@ -1,32 +1,16 @@
 package com.example.common.solr;
 
-import com.example.common.service.MapperService;
-import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.apache.solr.common.SolrInputDocument;
-import com.fasterxml.jackson.databind.JsonNode;
-
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class SolrUpload {
-    private final SolrClient solrClient;
-    private final MapperService mapperService;
-    private final String collection;
     private final String solrUrl;
+    private final String collection;
 
-    public SolrUpload(String solrUrl, String collection, String mappingPath) {
-        this.solrClient = new HttpSolrClient.Builder(solrUrl).build();
-        this.mapperService = new MapperService(mappingPath);
-        this.collection = collection;
+    public SolrUpload(String solrUrl, String collection) {
         this.solrUrl = solrUrl;
+        this.collection = collection;
     }
 
     public boolean checkSolrAvailability() {
@@ -58,7 +42,9 @@ public class SolrUpload {
 
     public boolean createCore() {
         try {
-            URL url = new URL(solrUrl + "/admin/cores?action=CREATE&name=" + collection + "&configSet=sample_techproducts_configs");
+            //URL url = new URL(solrUrl + "/admin/cores?action=CREATE&name=" + collection + "&configSet=sample_techproducts_configs");
+            URL url = new URL(solrUrl + "/admin/cores?action=CREATE&name=" + collection + "&configSet=_default");
+
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             int responseCode = connection.getResponseCode();
@@ -71,55 +57,21 @@ public class SolrUpload {
         }
     }
 
-    public void uploadToSolr(List<JsonNode> booksJsonNodes) throws Exception {
-        // Проверка наличия коллекции перед загрузкой
-        if (!checkCoreAvailability()) {
-            System.out.println("Core not found. Creating core...");
-            if (!createCore()) {
-                System.out.println("Failed to create core. Exiting.");
-                return;
-            } else {
-                System.out.println("Core created successfully.");
-            }
+    public boolean ensureSolrAndCore() {
+        if (!checkSolrAvailability()) {
+            System.out.println("Solr недоступен. Загрузка отменена.");
+            return false;
         }
 
-        booksJsonNodes.parallelStream()
-                .forEach(bookFromBatch -> {
-                    SolrInputDocument doc = new SolrInputDocument();
-                    Iterator<String> fieldNames = bookFromBatch.fieldNames();
-                    while (fieldNames.hasNext()) {
-                        String jsonFieldName = fieldNames.next();
-                        String solrFieldName = mapperService.getSolrFieldName(jsonFieldName);
-                        JsonNode fieldValue = bookFromBatch.get(jsonFieldName);
-
-                        if ("publication_date".equals(jsonFieldName)) {
-                            try {
-                                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                                Date date = dateFormat.parse(fieldValue.asText());
-                                String formattedDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(date);
-                                doc.addField(solrFieldName, formattedDate);
-                            } catch (ParseException e) {
-                                System.out.println("Error parsing date: " + fieldValue.asText());
-                            }
-                        } else if (fieldValue.isArray()) {
-                            fieldValue.forEach(value -> doc.addField(solrFieldName, value.asText()));
-                        } else {
-                            doc.addField(solrFieldName, fieldValue.asText());
-                        }
-                    }
-                    try {
-                        solrClient.add(collection, doc);
-                    } catch (SolrServerException e) {
-                        throw new RuntimeException(e);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-
-        solrClient.commit(collection);
-    }
-
-    public String getCollection() {
-        return collection;
+        if (!checkCoreAvailability()) {
+            System.out.println("Ядро не найдено. Попытка создать...");
+            if (!createCore()) {
+                System.out.println("Не удалось создать ядро. Загрузка отменена.");
+                return false;
+            } else {
+                System.out.println("Ядро успешно создано.");
+            }
+        }
+        return true;
     }
 }

@@ -1,28 +1,33 @@
 package com.example.cli_db.solr;
 
-
 import com.example.common.service.MapperService;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrInputDocument;
-
+import com.example.common.solr.SolrUpload;
 
 import java.sql.*;
 import java.util.*;
+
 
 public class SolrDbUpload {
     private final SolrClient solrClient;
     private final MapperService mapperService;
     private final String collection;
+    private final String solrUrl;
     private static final int BATCH_SIZE = 25;
 
     public SolrDbUpload(String solrUrl, String collection, String mappingPath) {
         this.solrClient = new HttpSolrClient.Builder(solrUrl).build();
         this.mapperService = new MapperService(mappingPath);
         this.collection = collection;
+        this.solrUrl = solrUrl;
     }
 
     public void uploadFromDb(Connection conn) throws Exception {
+        SolrUpload helper = new SolrUpload(solrUrl, collection);
+        if (!helper.ensureSolrAndCore()) return;
+
         String sql = "SELECT * FROM books";
         try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
             List<SolrInputDocument> batch = new ArrayList<>();

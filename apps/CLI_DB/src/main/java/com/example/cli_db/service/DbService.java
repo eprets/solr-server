@@ -2,6 +2,7 @@ package com.example.cli_db.service;
 
 import com.example.cli_db.solr.SolrDbUpload;
 import com.example.common.service.MapperService;
+import com.example.common.solr.SolrUpload;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import liquibase.Liquibase;
 import liquibase.database.Database;
@@ -103,11 +104,12 @@ public class DbService {
 
         List<String> dbFields = new ArrayList<>(mapperService.getFieldsMapping().keySet());
 
-        String sql = "INSERT INTO books (" +
+        String sql = "MERGE INTO books (" +
                 String.join(", ", dbFields) +
-                ") VALUES (" +
+                ") KEY(id) VALUES (" +
                 dbFields.stream().map(f -> "?").collect(Collectors.joining(", ")) +
                 ")";
+
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             int count = 0;
