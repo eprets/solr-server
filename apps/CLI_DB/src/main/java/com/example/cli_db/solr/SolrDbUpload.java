@@ -19,6 +19,7 @@ public class SolrDbUpload {
 
     public SolrDbUpload(String solrUrl, String collection, String mappingPath) {
         this.solrClient = new HttpSolrClient.Builder(solrUrl).build();
+
         this.mapperService = new MapperService(mappingPath);
         this.collection = collection;
         this.solrUrl = solrUrl;
@@ -39,8 +40,11 @@ public class SolrDbUpload {
 
                 for (int i = 1; i <= meta.getColumnCount(); i++) {
                     String column = meta.getColumnName(i);
-                    String solrField = mapperService.getSolrFieldName(column);
+                    String solrField = mapperService.getSolrFieldName(column.toLowerCase());
+
                     Object value = rs.getObject(i);
+                    //System.out.printf(" Чтение колонки: '%s' => Solr поле: '%s' | Значение: %s%n", column, solrField, value);
+
                     if (value instanceof Clob) {
                         Clob clob = (Clob) value;
                         value = clob.getSubString(1, (int) clob.length());
@@ -53,6 +57,10 @@ public class SolrDbUpload {
                 batch.add(doc);
 
                 if (batch.size() >= BATCH_SIZE) {
+                    /*System.out.println("📦 Отправка документов в Solr:");
+                    for (SolrInputDocument d : batch) {
+                        System.out.println("️-> " + d);
+                    }*/
                     solrClient.add(collection, batch);
                     solrClient.commit(collection);
                     totalUploaded += batch.size();
@@ -74,5 +82,8 @@ public class SolrDbUpload {
                 System.out.println("Всего загружено в Solr: " + totalUploaded + " документов.");
             }
         }
+    }
+    public String getCollection() {
+        return collection;
     }
 }

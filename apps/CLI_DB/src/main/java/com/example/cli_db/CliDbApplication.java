@@ -15,14 +15,27 @@ public class CliDbApplication {
         String dbPropsPath = args[1];
 
         try {
-            AppConfig config = new AppConfig();
+            /*AppConfig config = new AppConfig();
             String solrUrl = config.getSolrUrl();
             String collection = config.getSolrCollection();
 
             DbService dbService = new DbService(dbPropsPath, mapperPath);
+            dbService.validateParams(mapperPath);
+
             dbService.initSchema();
             SolrDbUpload solrDbUpload = new SolrDbUpload(solrUrl, collection, mapperPath);
+            dbService.menu(solrDbUpload);*/
+
+            AppConfig config = new AppConfig();
+            String solrUrl = config.getSolrUrl();
+            String collection = config.getSolrCollection();
+
+            SolrDbUpload solrDbUpload = new SolrDbUpload(solrUrl, collection, mapperPath);
+            DbService dbService = new DbService(dbPropsPath, solrDbUpload, solrUrl, collection, mapperPath);
+            dbService.validateParams(mapperPath);
+            dbService.initSchema();
             dbService.menu(solrDbUpload);
+
         } catch (Exception e) {
             e.printStackTrace();
         }

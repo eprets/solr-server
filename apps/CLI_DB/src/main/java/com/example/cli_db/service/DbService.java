@@ -16,11 +16,17 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class DbService {
+    private final SolrDbUpload solrUploader;
+    private final String solrUrl;
+    private final String collection;
     private final Connection connection;
     private final MapperService mapperService;
     private static final int BATCH_SIZE = 25;
 
-    public DbService(String dbPropsPath, String mappingPath) throws Exception {
+    public DbService(String dbPropsPath, SolrDbUpload solrUploader, String solrUrl, String collection, String mappingPath) throws Exception {
+        this.solrUploader = solrUploader;
+        this.solrUrl = solrUrl;
+        this.collection = collection;
         Properties props = new Properties();
         props.load(new FileInputStream(dbPropsPath));
         Class.forName(props.getProperty("db.driver"));
@@ -31,6 +37,27 @@ public class DbService {
         );
         this.mapperService = new MapperService(mappingPath);
     }
+
+    public void validateParams(String mappingPath) {
+        validateFile(mappingPath, "mapping");
+
+        SolrUpload helper = new SolrUpload(solrUrl, collection);
+        if (helper.ensureSolrAndCores()) {
+            throw new RuntimeException("Solr или core недоступны. Загрузка отменена.");
+        }
+        if (helper.checkCoreAvailability()) {
+            System.out.println("Core " + solrUploader.getCollection() + " not found. Trying create core...");
+            helper.createCore();
+        }
+    }
+
+    private void validateFile(String filePath, String fileType) {
+        File file = new File(filePath);
+        if (!file.exists() || !file.isFile()) {
+            throw new IllegalArgumentException("Неверный путь до " + fileType + " файла: " + filePath);
+        }
+    }
+
 
     public void initSchema() throws Exception {
         Database database = liquibase.database.DatabaseFactory.getInstance()
