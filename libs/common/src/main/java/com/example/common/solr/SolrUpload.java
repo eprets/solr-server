@@ -42,9 +42,7 @@ public class SolrUpload {
 
     public boolean createCore() {
         try {
-            //URL url = new URL(solrUrl + "/admin/cores?action=CREATE&name=" + collection + "&configSet=sample_techproducts_configs");
-            URL url = new URL(solrUrl + "/admin/cores?action=CREATE&name=" + collection + "&configSet=_default");
-
+            URL url = new URL(solrUrl + "/admin/cores?action=CREATE&name=" + collection + "&configSet=sample_techproducts_configs");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             int responseCode = connection.getResponseCode();
@@ -57,21 +55,22 @@ public class SolrUpload {
         }
     }
 
-    public boolean ensureSolrAndCore() {
+    public boolean ensureSolrAndCores() {
         if (!checkSolrAvailability()) {
             System.out.println("Solr недоступен. Загрузка отменена.");
-            return false;
+            return true;
         }
 
         if (!checkCoreAvailability()) {
             System.out.println("Ядро не найдено. Попытка создать...");
             if (!createCore()) {
                 System.out.println("Не удалось создать ядро. Загрузка отменена.");
-                return false;
+                return true;
             } else {
                 System.out.println("Ядро успешно создано.");
             }
         }
-        return true;
+        return false;
+
     }
 }

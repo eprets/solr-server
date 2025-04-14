@@ -35,8 +35,13 @@ public class JsonProcessor {
         validateFile(mappingPath, "mapping");
 
         SolrUpload helper = new SolrUpload(solrUrl, collection);
-        if (!helper.ensureSolrAndCore()) {
-            throw new RuntimeException("Solr or core not available. Exiting.");
+        if (!helper.checkSolrAvailability()) {
+            throw new RuntimeException("Solr is not available. Exiting.");
+        }
+
+        if (helper.checkCoreAvailability()) {
+            System.out.println("Core " + solrUploader.getCollection() + " not found. Trying create core...");
+            helper.createCore();
         }
     }
 
@@ -76,7 +81,6 @@ public class JsonProcessor {
                     }
                 }
 
-                // Обработка остатка
                 if (!booksBatch.isEmpty()) {
                     try {
                         solrUploader.uploadToSolr(booksBatch);

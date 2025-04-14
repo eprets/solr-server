@@ -26,7 +26,7 @@ public class SolrDbUpload {
 
     public void uploadFromDb(Connection conn) throws Exception {
         SolrUpload helper = new SolrUpload(solrUrl, collection);
-        if (!helper.ensureSolrAndCore()) return;
+        if (helper.ensureSolrAndCores()) return;
 
         String sql = "SELECT * FROM books";
         try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {

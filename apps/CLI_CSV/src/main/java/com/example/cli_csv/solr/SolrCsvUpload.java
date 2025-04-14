@@ -14,7 +14,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.io.File;
 
 public class SolrCsvUpload {
     private final SolrClient solrClient;
@@ -32,7 +31,7 @@ public class SolrCsvUpload {
 
     public void uploadToSolr(List<Book> books) throws Exception {
         SolrUpload helper = new SolrUpload(solrUrl, collection);
-        if (!helper.ensureSolrAndCore()) return;
+        if (helper.ensureSolrAndCores()) return;
 
         for (Book book : books) {
             JsonNode bookJsonNode = objectMapper.valueToTree(book);
@@ -65,6 +64,9 @@ public class SolrCsvUpload {
             solrClient.add(collection, doc);
         }
         solrClient.commit(collection);
+    }
+    public String getCollection() {
+        return collection;
     }
 
 }
