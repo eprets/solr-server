@@ -7,6 +7,8 @@ import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrInputDocument;
 import ru.kate.multiproject.service.MapperService;
 
+import org.springframework.util.StopWatch;
+
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -28,6 +30,9 @@ public class SolrJsonUpload {
     }
 
     public void uploadToSolr(List<JsonNode> booksJsonNodes) throws Exception {
+        StopWatch stopWatch = new StopWatch("Загрузка в Solr");
+        stopWatch.start("Формирование и отправка документов");
+
         SolrUpload helper = new SolrUpload(solrUrl, collection);
         if (helper.ensureSolrAndCores()) return;
 
@@ -65,7 +70,10 @@ public class SolrJsonUpload {
                 });
 
         solrClient.commit(collection);
+        stopWatch.stop();
         System.out.println("Загрузка в Solr завершена.");
+        System.out.println("Время загрузки в Solr: " + stopWatch.getTotalTimeMillis() + " мс");
+
     }
 
     public String getCollection() {

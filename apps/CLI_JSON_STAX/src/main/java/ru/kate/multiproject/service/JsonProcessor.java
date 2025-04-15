@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import ru.kate.multiproject.solr.SolrJsonUpload;
 import ru.kate.multiproject.solr.SolrUpload;
 
+import org.springframework.util.StopWatch;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -45,6 +47,9 @@ public class JsonProcessor {
     }
 
     public void processJson(String jsonPath) {
+        StopWatch stopWatch = new StopWatch("Обработка JSON");
+        stopWatch.start("Обработка файла");
+
         int counter = 0;
         try {
             System.out.println("Start JSON...");
@@ -100,6 +105,8 @@ public class JsonProcessor {
         } catch (Exception e) {
             System.out.println("Unexpected error: " + e.getMessage());
         } finally {
+            stopWatch.stop();
+            System.out.println("Общее время обработки JSON: " + stopWatch.getTotalTimeMillis() + " мс");
             System.out.println("Program finished.");
         }
     }

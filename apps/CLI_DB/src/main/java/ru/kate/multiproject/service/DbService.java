@@ -10,6 +10,8 @@ import liquibase.database.jvm.JdbcConnection;
 import liquibase.resource.ClassLoaderResourceAccessor;
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import org.springframework.util.StopWatch;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -93,7 +95,7 @@ public class DbService {
         }
     }
 
-    public void importFromFile(String path) throws Exception {
+    /*public void importFromFile(String path) throws Exception {
         if (path.endsWith(".json")) {
             importFromJson(path);
         } else if (path.endsWith(".csv")) {
@@ -101,7 +103,25 @@ public class DbService {
         } else {
             System.out.println("Поддерживаются только .json и .csv");
         }
+    }*/
+
+    public void importFromFile(String path) throws Exception {
+        StopWatch stopWatch = new StopWatch("Импорт книги");
+        stopWatch.start("Обработка файла");
+
+        if (path.endsWith(".json")) {
+            importFromJson(path);
+        } else if (path.endsWith(".csv")) {
+            importFromCsv(path);
+        } else {
+            System.out.println("Поддерживаются только .json и .csv");
+            return;
+        }
+
+        stopWatch.stop();
+        System.out.println("Время импорта: " + stopWatch.getTotalTimeMillis() + " мс");
     }
+
 
     private void importFromJson(String path) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
@@ -134,6 +154,9 @@ public class DbService {
             System.out.println("Нет данных для импорта.");
             return;
         }
+
+        StopWatch stopWatch = new StopWatch("Вставка в базу");
+        stopWatch.start();
 
         List<String> dbFields = new ArrayList<>(mapperService.getFieldsMapping().keySet());
 
@@ -179,7 +202,12 @@ public class DbService {
             }
 
             ps.executeBatch();
+
+            stopWatch.stop();
+
             System.out.println("Импорт завершён. Книг добавлено: " + count);
+
+            System.out.println("Время вставки в базу: " + stopWatch.getTotalTimeMillis() + " мс");
         }
     }
 }
