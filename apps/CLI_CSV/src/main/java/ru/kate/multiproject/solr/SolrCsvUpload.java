@@ -7,7 +7,9 @@ import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrInputDocument;
 import ru.kate.multiproject.model.Book;
 import ru.kate.multiproject.service.MapperService;
-import ru.kate.multiproject.solr.SolrUpload;
+
+import org.springframework.util.StopWatch;
+
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -31,6 +33,9 @@ public class SolrCsvUpload {
     }
 
     public void uploadToSolr(List<Book> books) throws Exception {
+        StopWatch stopWatch = new StopWatch("Загрузка CSV в Solr");
+        stopWatch.start("Сериализация и отправка");
+
         SolrUpload helper = new SolrUpload(solrUrl, collection);
         if (helper.ensureSolrAndCores()) return;
 
@@ -65,6 +70,9 @@ public class SolrCsvUpload {
             solrClient.add(collection, doc);
         }
         solrClient.commit(collection);
+
+        stopWatch.stop();
+        System.out.println("Время загрузки батча в Solr: " + stopWatch.getTotalTimeMillis() + " мс");
     }
     public String getCollection() {
         return collection;

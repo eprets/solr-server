@@ -1,13 +1,13 @@
 package ru.kate.multiproject.service;
 
-
-
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import ru.kate.multiproject.model.Book;
 import ru.kate.multiproject.solr.SolrCsvUpload;
 import ru.kate.multiproject.solr.SolrUpload;
+
+import org.springframework.util.StopWatch;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -45,6 +45,9 @@ public class CsvProcessor {
     }
 
     public void processCsv(String csvPath) {
+        StopWatch stopWatch = new StopWatch("Обработка CSV");
+        stopWatch.start("Чтение и загрузка");
+
         try {
             System.out.println("Start CSV...");
 
@@ -88,6 +91,8 @@ public class CsvProcessor {
         } catch (Exception e) {
             System.out.println("Error processing CSV: " + e.getMessage());
         } finally {
+            stopWatch.stop();
+            System.out.println("Общее время обработки CSV: " + stopWatch.getTotalTimeMillis() + " мс");
             System.out.println("Program finished.");
         }
     }

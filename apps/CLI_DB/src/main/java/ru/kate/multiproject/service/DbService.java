@@ -204,7 +204,6 @@ public class DbService {
             ps.executeBatch();
 
             stopWatch.stop();
-
             System.out.println("Импорт завершён. Книг добавлено: " + count);
 
             System.out.println("Время вставки в базу: " + stopWatch.getTotalTimeMillis() + " мс");

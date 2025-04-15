@@ -1,6 +1,5 @@
 package ru.kate.multiproject.solr;
 
-
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrInputDocument;
@@ -9,7 +8,6 @@ import ru.kate.multiproject.service.MapperService;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class SolrDbUpload {
     private final SolrClient solrClient;
