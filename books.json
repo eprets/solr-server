@@ -1,0 +1,218 @@
+[
+  {
+    "id": "1",
+    "title": "Deep Space",
+    "authors": [
+      "John Doe",
+      "Alice Smith"
+    ],
+    "publisher": "HarperCollins",
+    "publication_date": "2001-02-02",
+    "isbn": "978-0-938214-01-1",
+    "language": "English",
+    "genre": "Mystery",
+    "description": "A thrilling adventure through time and space.",
+    "price": 51.1,
+    "available": false,
+    "keywords": [
+      "mystery",
+      "adventure",
+      "book",
+      "fantasy"
+    ]
+  },
+  {
+    "id": "2",
+    "title": "Mysterious Ways",
+    "authors": [
+      "Michael Brown"
+    ],
+    "publisher": "Penguin Books",
+    "publication_date": "2002-03-03",
+    "isbn": "978-0-938214-02-2",
+    "language": "Spanish",
+    "genre": "Science Fiction",
+    "description": "A deep dive into the mysteries of the universe.",
+    "price": 52.2,
+    "available": true,
+    "keywords": [
+      "science",
+      "technology",
+      "future",
+      "AI"
+    ]
+  },
+  {
+    "id": "3",
+    "title": "Silent Echoes",
+    "authors": [
+      "Emily Davis"
+    ],
+    "publisher": "Random House",
+    "publication_date": "2003-04-04",
+    "isbn": "978-0-938214-03-3",
+    "language": "German",
+    "genre": "Non-Fiction",
+    "description": "Echoes of silence fill the vast emptiness.",
+    "price": 53.3,
+    "available": false,
+    "keywords": [
+      "history",
+      "war",
+      "politics",
+      "economy"
+    ]
+  },
+  {
+    "id": "4",
+    "title": "Burning Skies",
+    "authors": [
+      "Chris Johnson"
+    ],
+    "publisher": "Simon & Schuster",
+    "publication_date": "2004-05-05",
+    "isbn": "978-0-938214-04-4",
+    "language": "Italian",
+    "genre": "Thriller",
+    "description": "The sky burns with untold secrets.",
+    "price": 54.4,
+    "available": true,
+    "keywords": [
+      "romance",
+      "love",
+      "passion",
+      "drama"
+    ]
+  },
+  {
+    "id": "5",
+    "title": "Record tough.",
+    "authors": [
+      "Sandra Rios",
+      "Kate"
+    ],
+    "publisher": "Day, Chan and Taylor",
+    "publication_date": "2005-06-06",
+    "isbn": "978-0-938214-05-5",
+    "language": "French",
+    "genre": "Fiction",
+    "description": "Summer brother yeah quickly role compare exist.",
+    "price": 55.5,
+    "available": false,
+    "keywords": [
+      "college",
+      "eat",
+      "trade",
+      "produce",
+      "day"
+    ]
+  },
+  {
+    "id": "6",
+    "title": "Deep Space",
+    "authors": [
+      "John Doe",
+      "Alice Smith"
+    ],
+    "publisher": "HarperCollins",
+    "publication_date": "2006-07-07",
+    "isbn": "978-0-938214-06-6",
+    "language": "English",
+    "genre": "Mystery",
+    "description": "A thrilling adventure through time and space.",
+    "price": 56.6,
+    "available": true,
+    "keywords": [
+      "mystery",
+      "adventure",
+      "book",
+      "fantasy"
+    ]
+  },
+  {
+    "id": "7",
+    "title": "Mysterious Ways",
+    "authors": [
+      "Michael Brown"
+    ],
+    "publisher": "Penguin Books",
+    "publication_date": "2007-08-08",
+    "isbn": "978-0-938214-07-7",
+    "language": "Spanish",
+    "genre": "Science Fiction",
+    "description": "A deep dive into the mysteries of the universe.",
+    "price": 57.7,
+    "available": false,
+    "keywords": [
+      "science",
+      "technology",
+      "future",
+      "AI"
+    ]
+  },
+  {
+    "id": "8",
+    "title": "Silent Echoes",
+    "authors": [
+      "Emily Davis"
+    ],
+    "publisher": "Random House",
+    "publication_date": "2008-09-09",
+    "isbn": "978-0-938214-08-8",
+    "language": "German",
+    "genre": "Non-Fiction",
+    "description": "Echoes of silence fill the vast emptiness.",
+    "price": 58.8,
+    "available": true,
+    "keywords": [
+      "history",
+      "war",
+      "politics",
+      "economy"
+    ]
+  },
+  {
+    "id": "9",
+    "title": "Burning Skies",
+    "authors": [
+      "Chris Johnson"
+    ],
+    "publisher": "Simon & Schuster",
+    "publication_date": "2009-10-10",
+    "isbn": "978-0-938214-09-9",
+    "language": "Italian",
+    "genre": "Thriller",
+    "description": "The sky burns with untold secrets.",
+    "price": 59.9,
+    "available": false,
+    "keywords": [
+      "romance",
+      "love",
+      "passion",
+      "drama"
+    ]
+  },
+  {
+    "id": "10",
+    "title": "Record tough.",
+    "authors": [
+      "Sandra Rios",
+      "Kate"
+    ],
+    "publisher": "Day, Chan and Taylor",
+    "publication_date": "2010-11-11",
+    "isbn": "978-0-938214-10-0",
+    "language": "French",
+    "genre": "Fiction",
+    "description": "Summer brother yeah quickly role compare exist.",
+    "price": 61.0,
+    "available": true,
+    "keywords": [
+      "college",
+      "eat",
+      "trade",
+      "produce",
+      "day"
+    ]
+  }
+]

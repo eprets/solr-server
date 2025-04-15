@@ -1,0 +1,9 @@
+plugins {
+    //id 'java'
+}
+//group = 'ru.kate.multiproject'
+//version = '1.0'
+
+repositories {
+    mavenCentral()
+}

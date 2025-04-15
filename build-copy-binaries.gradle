@@ -1,0 +1,14 @@
+task copyJar(type: Copy) {
+  def currentTask = it
+  plugins.withType(JavaPlugin) {
+    dependsOn assemble
+
+    println "* jar: ${jar.destinationDirectory}"
+    from (jar.destinationDirectory) {
+      include '*.jar'
+    }
+    into new File(rootProject.buildDir, project.version)
+    project.tasks.build.finalizedBy currentTask
+    rename "(.)-${jar.archiveVersion}.jar", '$1.jar'
+  }
+}

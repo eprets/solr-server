@@ -1,0 +1,8 @@
+rootProject.name = 'multiproj'
+
+include 'lib:common'
+include 'apps:CLI_DB'
+include 'apps:CLI_CSV'
+include 'apps:CLI_JSON_STAX'
+
+
