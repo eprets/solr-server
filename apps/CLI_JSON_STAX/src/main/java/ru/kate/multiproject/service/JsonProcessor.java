@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 public class JsonProcessor {
@@ -24,21 +25,28 @@ public class JsonProcessor {
     private final String mappingPath;
     private final String solrUrl;
     private final String collection;
-    private static final int BATCH_SIZE = 1000;
+    private final int batchSize;
     private final int threadCount;
-
     private int counter = 0;
 
+    private static final int DEFAULT_BATCH_SIZE = 100;
+    private static final int DEFAULT_THREAD_COUNT = 3;
+
     public JsonProcessor(String solrUrl, String collection, String mappingPath) {
-        this(solrUrl, collection, mappingPath, 2);
+        this(solrUrl, collection, mappingPath, DEFAULT_THREAD_COUNT, DEFAULT_BATCH_SIZE);
     }
 
-    public JsonProcessor(String solrUrl, String collection, String mappingPath, int threadCount) {
+    public JsonProcessor(String solrUrl, String collection, String mappingPath, int batchSize) {
+        this(solrUrl, collection, mappingPath, DEFAULT_THREAD_COUNT, batchSize);
+    }
+
+    public JsonProcessor(String solrUrl, String collection, String mappingPath, int threadCount, int batchSize) {
         this.solrUploader = new SolrJsonUpload(solrUrl, collection, mappingPath);
         this.mappingPath = mappingPath;
         this.solrUrl = solrUrl;
         this.collection = collection;
         this.threadCount = threadCount;
+        this.batchSize = batchSize;
     }
 
     public void validateParams(String jsonPath) {
@@ -61,6 +69,7 @@ public class JsonProcessor {
         stopWatch.start("Чтение и загрузка данных");
 
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        List<Future<?>> futures = new ArrayList<>();
 
         int totalBooks = 0;
         long[] totalUploadTimeMs = {0};
@@ -86,53 +95,23 @@ public class JsonProcessor {
                         System.out.println("Ошибка при разборе объекта JSON: " + e.getMessage());
                     }
 
-                    if (booksBatch.size() >= BATCH_SIZE) {
+                    if (booksBatch.size() >= batchSize) {
                         List<JsonNode> batchToUpload = new ArrayList<>(booksBatch);
                         booksBatch.clear();
-
                         totalBooks += batchToUpload.size();
 
-                        executorService.submit(() -> {
-                            long uploadStart = System.currentTimeMillis();
-                            try {
-                                solrUploader.uploadToSolr(batchToUpload);
-                            } catch (Exception e) {
-                                System.out.println("Ошибка при загрузке батча в Solr: " + e.getMessage());
-                            }
-                            long uploadEnd = System.currentTimeMillis();
-                            synchronized (totalUploadTimeMs) {
-                                totalUploadTimeMs[0] += (uploadEnd - uploadStart);
-                            }
-                            synchronized (this) {
-                                counter++;
-                            }
-                            System.out.println("Пакет загружен (" + batchToUpload.size() + " книг).");
-                        });
+                        Future<?> future = executorService.submit(() -> uploadBatch(batchToUpload, totalUploadTimeMs));
+                        futures.add(future);
                     }
                 }
 
                 if (!booksBatch.isEmpty()) {
                     List<JsonNode> batchToUpload = new ArrayList<>(booksBatch);
                     booksBatch.clear();
-
                     totalBooks += batchToUpload.size();
 
-                    executorService.submit(() -> {
-                        long uploadStart = System.currentTimeMillis();
-                        try {
-                            solrUploader.uploadToSolr(batchToUpload);
-                        } catch (Exception e) {
-                            System.out.println("Ошибка при загрузке последней партии в Solr: " + e.getMessage());
-                        }
-                        long uploadEnd = System.currentTimeMillis();
-                        synchronized (totalUploadTimeMs) {
-                            totalUploadTimeMs[0] += (uploadEnd - uploadStart);
-                        }
-                        synchronized (this) {
-                            counter++;
-                        }
-                        System.out.println("Финальный пакет загружен (" + batchToUpload.size() + " книг).");
-                    });
+                    Future<?> future = executorService.submit(() -> uploadBatch(batchToUpload, totalUploadTimeMs));
+                    futures.add(future);
                 }
 
             } catch (JsonParseException e) {
@@ -148,6 +127,14 @@ public class JsonProcessor {
         } finally {
             executorService.shutdown();
             try {
+                // Ждём завершения всех задач через Future
+                for (Future<?> future : futures) {
+                    try {
+                        future.get();
+                    } catch (Exception e) {
+                        System.out.println("Ошибка выполнения задачи: " + e.getMessage());
+                    }
+                }
                 executorService.awaitTermination(1, TimeUnit.HOURS);
             } catch (InterruptedException e) {
                 System.out.println("Ожидание завершения потоков прервано: " + e.getMessage());
@@ -156,18 +143,25 @@ public class JsonProcessor {
             stopWatch.stop();
             System.out.println("Общее время обработки JSON: " + stopWatch.getTotalTimeMillis() + " мс");
 
-            if (totalBooks > 0 && counter > 0) {
-                double avgMsPerRequest = (double) totalUploadTimeMs[0] / counter;
-                double avgMsPerBook = (double) totalUploadTimeMs[0] / totalBooks;
-
-                System.out.println("Статистика загрузки:");
-                System.out.printf("Общее время загрузки в Solr: %d мс%n", totalUploadTimeMs[0]);
-                System.out.printf("Среднее время на один запрос (пакет): %.2f мс%n", avgMsPerRequest);
-                System.out.printf("Среднее время на одну книгу: %.2f мс%n", avgMsPerBook);
-            }
-
-            System.out.println("Программа завершила работу.");
+            printStatistics(totalBooks, totalUploadTimeMs[0]);
         }
+    }
+
+    private void uploadBatch(List<JsonNode> batchToUpload, long[] totalUploadTimeMs) {
+        long uploadStart = System.currentTimeMillis();
+        try {
+            solrUploader.uploadToSolr(batchToUpload);
+        } catch (Exception e) {
+            System.out.println("Ошибка при загрузке батча в Solr: " + e.getMessage());
+        }
+        long uploadEnd = System.currentTimeMillis();
+        synchronized (totalUploadTimeMs) {
+            totalUploadTimeMs[0] += (uploadEnd - uploadStart);
+        }
+        synchronized (this) {
+            counter++;
+        }
+        System.out.println("Пакет загружен (" + batchToUpload.size() + " книг).");
     }
 
     private void validateFile(String filePath, String fileType) throws IllegalArgumentException {
@@ -181,5 +175,18 @@ public class JsonProcessor {
         ObjectMapper objectMapper = new ObjectMapper();
         jsonParser.setCodec(objectMapper);
         return objectMapper.readTree(jsonParser);
+    }
+
+    private void printStatistics(int totalBooks, long totalUploadTimeMs) {
+        if (totalBooks > 0 && counter > 0) {
+            double avgMsPerRequest = (double) totalUploadTimeMs / counter;
+            double avgMsPerBook = (double) totalUploadTimeMs / totalBooks;
+
+            System.out.println("Статистика загрузки:");
+            System.out.printf("Общее время загрузки в Solr: %d мс%n", totalUploadTimeMs);
+            System.out.printf("Среднее время на один запрос (пакет): %.2f мс%n", avgMsPerRequest);
+            System.out.printf("Среднее время на одну книгу: %.2f мс%n", avgMsPerBook);
+        }
+        System.out.println("Программа завершила работу.");
     }
 }
