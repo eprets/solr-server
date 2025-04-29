@@ -34,7 +34,7 @@ public class SolrJsonUpload {
         stopWatch.start("Формирование и отправка документов");
 
         SolrUpload helper = new SolrUpload(solrUrl, collection);
-        if (helper.ensureSolrAndCores()) return;
+        //if (helper.ensureSolrAndCores()) return;
 
         booksJsonNodes.parallelStream()
                 .forEach(bookFromBatch -> {
